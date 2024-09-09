@@ -6,8 +6,9 @@
   "scripts": {
     "prepare": "yarn bundleup",
     "postinstall": "cd runtime && rustup update && cargo build",
-    "asbuild:debug": "asc assembly/index.ts --target debug --enable threads --config asconfig.json",
-    "asbuild:release": "asc assembly/index.ts --target release --config asconfig.json",
+    "asbuild:debug": "asc assembly/indexer/index.ts --target debug --enable threads --config asconfig.json",
+    "asbuild:release": "asc assembly/indexer/index.ts --target release --config asconfig.json",
+    "asbuild:test": "asc assembly/index.ts --target release --config asconfig.json",
     "bundleup": "wasm-merge runtime/target/wasm32-unknown-unknown/debug/alkanes_runtime.wasm build/debug.wasm -o build/combined.wasm",
     "build": "npm-run-all asbuild:debug asbuild:release",
     "build:debug:preloader": "npm run asbuild:preloader --sharedMemory",
