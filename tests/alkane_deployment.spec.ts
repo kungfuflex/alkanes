@@ -1,5 +1,6 @@
 import {
   buildProgram,
+  formatKv,
   TEST_BTC_ADDRESS1,
   TEST_BTC_ADDRESS2,
 } from "metashrew-runes/lib/tests/utils/general";
@@ -37,7 +38,8 @@ describe("alkane deployments", () => {
     );
     program.setBlock(block.toHex());
     await program.run("_start");
-    /* await expectRunesBalances(TEST_BTC_ADDRESS1, 1).equals([premineAmount]);
+    console.log(formatKv(program.kv));
+    await expectRunesBalances(TEST_BTC_ADDRESS1, 1).equals([premineAmount]);
     await expectRunesBalances(TEST_BTC_ADDRESS2, 2).isZero();
     await expectProtoRunesBalances(
       TEST_BTC_ADDRESS2,
@@ -48,7 +50,7 @@ describe("alkane deployments", () => {
       TEST_BTC_ADDRESS1,
       1,
       DEFAULT_PROTOCOL_TAG
-    ).isZero(); */
+    ).isZero();
   });
   it("should test fixture initial values protoburn", async () => {
     let { block, premineAmount } =
