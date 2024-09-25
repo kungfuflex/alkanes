@@ -55,19 +55,22 @@ export function pipeStorage(result: ArrayBuffer, target: AlkaneId, state: Alkane
 }
 
 export function makeLinker(engine: wasmi.Engine): wasmi.Linker {
-  return engine
+  console.log("make linker");
+  const linker = engine
     .linker()
     .define("env", "__log", (_caller: usize, ptr: i32): i32 => {
       const caller = wasmi.Caller.wrap(_caller);
       console.log(String.UTF8.decode(readArrayBuffer(caller, deref(caller, ptr, 0))));
       return 0;
-    })
-    .define("env", "__request_context", (_caller: usize, ptr: i32): i32 => {
+    });
+    console.log("__log");
+  linker.define("env", "__request_context", (_caller: usize, ptr: i32): i32 => {
       const caller = wasmi.Caller.wrap(_caller);
       const context = changetype<AlkaneContext>(caller.context());
       return context.serialize().byteLength;
-    })
-    .define("env", "__load_context", (_caller: usize, ptr: i32): i32 => {
+    });
+    console.log("__request_context");
+    linker.define("env", "__load_context", (_caller: usize, ptr: i32): i32 => {
       const caller = wasmi.Caller.wrap(_caller);
       const context = changetype<AlkaneContext>(caller.context());
       const mem: usize = caller.memory();
@@ -316,6 +319,8 @@ export function makeLinker(engine: wasmi.Engine): wasmi.Linker {
       );
       return 0;
     });
+    console.log('made linker');
+    return linker;
 }
 
 export class AlkaneInstance {

@@ -88,6 +88,8 @@
   store: usize,
 ): usize;
 
+import { console } from "metashrew-as/assembly/utils/logging";
+
 export namespace wasmi {
   export class Result<T> {
     public value: T;
@@ -118,7 +120,7 @@ export namespace wasmi {
       changetype<usize>(s),
       <usize>s.byteLength,
     );
-    store<u8>(changetype<usize>(result) + s.byteLength, <u8>1);
+    store<u8>(changetype<usize>(result) + s.byteLength, <u8>0);
     return result;
   }
 
@@ -253,6 +255,7 @@ export namespace wasmi {
       func: string,
       handler: (caller: usize, ptr: i32) => i32,
     ): Linker {
+      console.log("Linker:unwrap:" + this.unwrap().toString(10));
       __wasmi_func_wrap(
         this.unwrap(),
         changetype<usize>(toCStr(module)),
