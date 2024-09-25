@@ -5,6 +5,11 @@ use std::os::raw::c_char;
 use wasmi;
 use wasmi::AsContext;
 
+#[link(wasm_import_module = "alkanes")]
+extern "C" {
+    fn __new(sz: usize, id: u32) -> usize;
+}
+
 
 #[no_mangle]
 pub extern "C" fn __wasmi_caller_memory(caller: *mut wasmi::Caller<'static, State>) -> *mut u8 {
@@ -28,7 +33,7 @@ pub extern "C" fn __wasmi_caller_context(
 pub extern "C" fn __wasmi_engine_new() -> *mut wasmi::Engine {
     let mut config = wasmi::Config::default();
     config.consume_fuel(true);
-    Box::leak(Box::new(wasmi::Engine::new(&config))) as *mut wasmi::Engine
+    alloc(wasmi::Engine::new(&config))
 }
 
 #[no_mangle]
@@ -61,7 +66,7 @@ pub extern "C" fn __wasmi_store_new(
     );
     store.limiter(|state| &mut state.limiter);
     wasmi::Store::<State>::set_fuel(&mut store, fuel_limit).unwrap();
-    Box::leak(Box::new(store)) as *mut wasmi::Store<State>
+    alloc(store)
 }
 
 #[no_mangle]
@@ -78,23 +83,30 @@ pub extern "C" fn __wasmi_store_free(ptr: *mut wasmi::Store<State>) -> () {
     }
 }
 
+pub fn alloc<T: Sized>(v: T) -> *mut T {
+  unsafe {
+    let ptr: *mut T = __new(std::mem::size_of::<T>(), 0) as *mut T;
+    *ptr = v;
+    ptr
+  }
+}
+
 #[no_mangle]
 pub extern "C" fn __wasmi_module_new(
     engine: *mut wasmi::Engine,
     program: *const u8,
     sz: usize,
 ) -> *mut wasmi::Module {
-    Box::leak(Box::new(
-        wasmi::Module::new(unsafe { &*engine }, unsafe {
+    alloc(wasmi::Module::new(unsafe { &*engine }, unsafe {
             std::slice::from_raw_parts::<'static, u8>(program, sz)
         })
         .unwrap(),
-    )) as *mut wasmi::Module
+    )
 }
 
 #[no_mangle]
 pub extern "C" fn __wasmi_linker_new(engine: *mut wasmi::Engine) -> *mut wasmi::Linker<State> {
-    Box::leak(Box::new(wasmi::Linker::new(unsafe { &*engine }))) as *mut wasmi::Linker<State>
+    alloc(wasmi::Linker::new(unsafe { &*engine }))
 }
 
 #[no_mangle]
@@ -142,13 +154,13 @@ pub extern "C" fn __wasmi_linker_instantiate(
     store: *mut wasmi::Store<State>,
     module: *mut wasmi::Module,
 ) -> *mut wasmi::Instance {
-    Box::leak(Box::new(unsafe {
+    alloc(unsafe {
         (&mut *linker)
             .instantiate(&mut *store, &*module)
             .unwrap()
             .ensure_no_start(&mut *store)
             .unwrap()
-    })) as *mut wasmi::Instance
+    })
 }
 
 #[no_mangle]
