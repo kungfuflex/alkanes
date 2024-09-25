@@ -11,7 +11,7 @@
     "asbuild:test": "asc assembly/index.ts --target release --config asconfig.json",
     "bundleup": "wasm-merge build/debug.wasm alkanes runtime/target/wasm32-unknown-unknown/debug/alkanes_runtime.wasm alkanes_runtime -o build/combined.wasm -n -q -sec --enable-bulk-memory",
     "metadce": "wasm-metadce build/combined-out.wasm --graph-file metadce/graph.json -o build/combined-metadce.wasm --all-features > /dev/null",
-    "build": "npm-run-all asbuild:debug asbuild:release build:ts bundleup opt",
+    "build": "npm-run-all asbuild:debug asbuild:release build:ts postinstall bundleup opt",
     "build:debug:preloader": "npm run asbuild:preloader --sharedMemory",
     "prettier:assemblyscript": "prettier --write ./assembly/**/*.ts --plugin assemblyscript-prettier",
     "prettier:ts": "prettier --write ./src.ts/**/*.ts",

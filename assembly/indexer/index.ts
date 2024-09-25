@@ -24,4 +24,8 @@ export function _start(): void {
   _flush();
 }
 
+export function __console(ptr: usize): void {
+  console.logUTF8(changetype<ArrayBuffer>(ptr));
+}
+
 export * from "protorune/assembly/view";

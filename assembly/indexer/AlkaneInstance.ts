@@ -48,79 +48,95 @@ export function deref(caller: wasmi.Caller, ptr: i32, i: usize): i32 {
   return load<i32>(caller.memory() + <usize>ptr + <usize>sizeof<i32>() * i);
 }
 
-export function pipeStorage(result: ArrayBuffer, target: AlkaneId, state: AlkaneGlobalState): ArrayBuffer {
+export function pipeStorage(
+  result: ArrayBuffer,
+  target: AlkaneId,
+  state: AlkaneGlobalState,
+): ArrayBuffer {
   const box = Box.from(result);
   state.take(target, StorageMap.consumeToStorageMap(box));
   return box.toArrayBuffer();
 }
 
 export function makeLinker(engine: wasmi.Engine): wasmi.Linker {
-  return engine
-    .linker()
-    .define("env", "__log", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      console.log(String.UTF8.decode(readArrayBuffer(caller, deref(caller, ptr, 0))));
-      return 0;
-    })
-    .define("env", "__request_context", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      const context = changetype<AlkaneContext>(caller.context());
-      return context.serialize().byteLength;
-    })
-    .define("env", "__load_context", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      const context = changetype<AlkaneContext>(caller.context());
-      const mem: usize = caller.memory();
-      const serialized = context.serialize();
-      const start = mem + <usize>load<i32>(load<usize>(mem + <usize>ptr));
-      if (start < mem + 4) return <i32>start - <i32>mem;
-      memory.copy(start, changetype<usize>(serialized), serialized.byteLength);
-      return <i32>start - <i32>mem;
-    })
-    .define("env", "__request_storage", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      const context = changetype<AlkaneContext>(caller.context());
-      return context.state.lookup(
+  const linker = engine.linker();
+  console.log('defining functions');
+  linker.define("env", "__log", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    console.log(
+      String.UTF8.decode(readArrayBuffer(caller, deref(caller, ptr, 0))),
+    );
+    return 0;
+  });
+  console.log('defined __log');
+  linker.define("env", "__request_context", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    const context = changetype<AlkaneContext>(caller.context());
+    return context.serialize().byteLength;
+  });
+  console.log("defined __request_context");
+  linker.define("env", "__load_context", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    const context = changetype<AlkaneContext>(caller.context());
+    const mem: usize = caller.memory();
+    const serialized = context.serialize();
+    const start = mem + <usize>load<i32>(load<usize>(mem + <usize>ptr));
+    if (start < mem + 4) return <i32>start - <i32>mem;
+    memory.copy(start, changetype<usize>(serialized), serialized.byteLength);
+    return <i32>start - <i32>mem;
+  });
+  console.log("defined __load_context");
+  linker.define("env", "__request_storage", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    const context = changetype<AlkaneContext>(caller.context());
+    return context.state.lookup(
+      AlkaneId.fromOther(context.self),
+      AlkaneId.parse(readArrayBuffer(caller, deref(caller, ptr, 0))),
+    ).byteLength;
+  });
+  console.log("defined __request_storage");
+  linker.define("env", "__load_storage", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    const context = changetype<AlkaneContext>(caller.context());
+    writeMemory(
+      caller,
+      deref(caller, ptr, 1),
+      context.state.lookup(
         AlkaneId.fromOther(context.self),
         AlkaneId.parse(readArrayBuffer(caller, deref(caller, ptr, 0))),
-      ).byteLength;
-    })
-    .define("env", "__load_storage", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      const context = changetype<AlkaneContext>(caller.context());
-      writeMemory(
-        caller,
-        deref(caller, ptr, 1),
-        context.state.lookup(
-          AlkaneId.fromOther(context.self),
-          AlkaneId.parse(readArrayBuffer(caller, deref(caller, ptr, 0))),
-        ),
-      );
-      return 0;
-    })
-    .define("env", "__balance", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      const context = changetype<AlkaneContext>(caller.context());
-      const who = AlkaneId.parse(
-        readArrayBuffer(caller, deref(caller, ptr, 0)),
-      );
-      const what = AlkaneId.parse(
-        readArrayBuffer(caller, deref(caller, ptr, 1)),
-      );
-      writeMemory(
-        caller,
-        deref(caller, ptr, 2),
-        toArrayBuffer(context.state.balance(who, what)),
-      );
-      return 0;
-    })
-    .define("env", "__request_transaction", (_caller: usize, ptr: i32): i32 => {
+      ),
+    );
+    return 0;
+  });
+  console.log("defined __load_storage");
+  linker.define("env", "__balance", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    const context = changetype<AlkaneContext>(caller.context());
+    const who = AlkaneId.parse(readArrayBuffer(caller, deref(caller, ptr, 0)));
+    const what = AlkaneId.parse(readArrayBuffer(caller, deref(caller, ptr, 1)));
+    writeMemory(
+      caller,
+      deref(caller, ptr, 2),
+      toArrayBuffer(context.state.balance(who, what)),
+    );
+    return 0;
+  });
+  console.log("defined __balance");
+  linker.define(
+    "env",
+    "__request_transaction",
+    (_caller: usize, ptr: i32): i32 => {
       return <i32>(
         changetype<AlkaneContext>(wasmi.Caller.wrap(_caller).context())
           .messageContext.transaction.bytes.len
       );
-    })
-    .define("env", "__load_transaction", (_caller: usize, ptr: i32): i32 => {
+    },
+  );
+  console.log("defined __request_transaction");
+  linker.define(
+    "env",
+    "__load_transaction",
+    (_caller: usize, ptr: i32): i32 => {
       const caller = wasmi.Caller.wrap(_caller);
       writeMemory(
         caller,
@@ -130,192 +146,215 @@ export function makeLinker(engine: wasmi.Engine): wasmi.Linker {
         ).messageContext.transaction.bytes.toArrayBuffer(),
       );
       return 0;
-    })
-    .define("env", "__request_block", (_caller: usize, ptr: i32): i32 => {
-      return <i32>(
-        changetype<AlkaneContext>(wasmi.Caller.wrap(_caller).context())
-          .messageContext.block.bytes.len
-      );
-    })
-    .define("env", "__load_block", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      writeMemory(
-        caller,
-        deref(caller, ptr, 0),
-        changetype<AlkaneContext>(
-          wasmi.Caller.wrap(_caller).context(),
-        ).messageContext.block.bytes.toArrayBuffer(),
-      );
-      return 0;
-    })
-    .define("env", "__sequence", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      writeMemory(
-        caller,
-        deref(caller, ptr, 0),
-        changetype<Uint8Array>(
-          changetype<AlkaneContext>(caller.context())
-            .messageContext.sequence()
-            .toBytes(),
-        ).buffer,
-      );
-      return 0;
-    })
-    .define("env", "__fuel", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      writeMemory(
-        caller,
-        deref(caller, ptr, 0),
-        primitiveToBuffer<u64>(
-          changetype<AlkaneContext>(caller.context()).instance.store.fuel(),
+    },
+  );
+  console.log("defined __load_transaction");
+  linker.define("env", "__request_block", (_caller: usize, ptr: i32): i32 => {
+    return <i32>(
+      changetype<AlkaneContext>(wasmi.Caller.wrap(_caller).context())
+        .messageContext.block.bytes.len
+    );
+  });
+  console.log("defined __request_block");
+  linker.define("env", "__load_block", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    writeMemory(
+      caller,
+      deref(caller, ptr, 0),
+      changetype<AlkaneContext>(
+        wasmi.Caller.wrap(_caller).context(),
+      ).messageContext.block.bytes.toArrayBuffer(),
+    );
+    return 0;
+  });
+  console.log("defined __load_block");
+  linker.define("env", "__sequence", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    writeMemory(
+      caller,
+      deref(caller, ptr, 0),
+      changetype<Uint8Array>(
+        changetype<AlkaneContext>(caller.context())
+          .messageContext.sequence()
+          .toBytes(),
+      ).buffer,
+    );
+    return 0;
+  });
+  console.log("defined __sequence");
+  linker.define("env", "__fuel", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    writeMemory(
+      caller,
+      deref(caller, ptr, 0),
+      primitiveToBuffer<u64>(
+        changetype<AlkaneContext>(caller.context()).instance.store.fuel(),
+      ),
+    );
+    return 0;
+  });
+  console.log("defined __fuel");
+  linker.define("env", "__call", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    const context = changetype<AlkaneContext>(caller.context());
+    const state = context.state;
+    const cellpack = Cellpack.fromArrayBuffer(
+      readArrayBuffer(caller, deref(caller, ptr, 0)),
+    );
+    const incomingRunes = AlkaneTransferParcel.parse(
+      readArrayBuffer(caller, deref(caller, ptr, 1)),
+    );
+    state.checkpoint();
+    const storageMap = StorageMap.parseStorageMap(
+      readArrayBuffer(caller, deref(caller, ptr, 2)),
+    );
+    state.take(AlkaneId.fromOther(context.self), storageMap);
+    if (
+      !state.transfer(
+        AlkaneId.fromOther(context.self),
+        cellpack.target,
+        incomingRunes,
+      )
+    ) {
+      state.rollback();
+      context.returndata = new ArrayBuffer(0);
+      return context.returndata.byteLength;
+    }
+    const instance = new AlkaneInstance(
+      context.messageContext,
+      cellpack.target,
+      context.self,
+      AlkaneContextIncomingRune.fromParcel(incomingRunes),
+      cellpack.inputs,
+      state,
+    );
+    const result = instance.run();
+    if (result.success) {
+      context.returndata = pipeStorage(
+        readArrayBufferAtOffset(
+          instance.instance.memory(instance.store),
+          result.value,
         ),
-      );
-      return 0;
-    })
-    .define("env", "__call", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      const context = changetype<AlkaneContext>(caller.context());
-      const state = context.state;
-      const cellpack = Cellpack.fromArrayBuffer(
-        readArrayBuffer(caller, deref(caller, ptr, 0)),
-      );
-      const incomingRunes = AlkaneTransferParcel.parse(
-        readArrayBuffer(caller, deref(caller, ptr, 1)),
-      );
-      state.checkpoint();
-      const storageMap = StorageMap.parseStorageMap(
-        readArrayBuffer(caller, deref(caller, ptr, 2)),
-      );
-      state.take(AlkaneId.fromOther(context.self), storageMap);
-      if (!state.transfer(AlkaneId.fromOther(context.self), cellpack.target, incomingRunes)) {
-        state.rollback();
-        context.returndata = new ArrayBuffer(0);
-	return context.returndata.byteLength;
-      }
-      const instance = new AlkaneInstance(
-        context.messageContext,
         cellpack.target,
-        context.self,
-        AlkaneContextIncomingRune.fromParcel(incomingRunes),
-        cellpack.inputs,
         state,
       );
-      const result = instance.run();
-      if (result.success) {
-        context.returndata = pipeStorage(
-          readArrayBufferAtOffset(
-            instance.instance.memory(instance.store),
-            result.value,
-          ),
-          cellpack.target,
-          state,
-        );
-        state.commit();
-      } else {
-        context.returndata = new ArrayBuffer(0);
-        state.rollback();
-      }
-      return context.returndata.byteLength;
-    })
-    .define("env", "__delegatecall", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      const context = changetype<AlkaneContext>(caller.context());
-      const state = context.state;
-      const cellpack = Cellpack.fromArrayBuffer(
-        readArrayBuffer(caller, deref(caller, ptr, 0)),
-      );
-      const incomingRunes = AlkaneTransferParcel.parse(
-        readArrayBuffer(caller, deref(caller, ptr, 1)),
-      );
-      state.checkpoint();
-      const storageMap = StorageMap.parseStorageMap(
-        readArrayBuffer(caller, deref(caller, ptr, 2)),
-      );
-      state.take(AlkaneId.fromOther(context.self), storageMap);
-      const instance = new AlkaneInstance(
-        context.messageContext,
-        context.self,
-        context.caller,
-        AlkaneContextIncomingRune.fromParcel(incomingRunes),
-        cellpack.inputs,
+      state.commit();
+    } else {
+      context.returndata = new ArrayBuffer(0);
+      state.rollback();
+    }
+    return context.returndata.byteLength;
+  });
+  console.log("defined __call");
+  linker.define("env", "__delegatecall", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    const context = changetype<AlkaneContext>(caller.context());
+    const state = context.state;
+    const cellpack = Cellpack.fromArrayBuffer(
+      readArrayBuffer(caller, deref(caller, ptr, 0)),
+    );
+    const incomingRunes = AlkaneTransferParcel.parse(
+      readArrayBuffer(caller, deref(caller, ptr, 1)),
+    );
+    state.checkpoint();
+    const storageMap = StorageMap.parseStorageMap(
+      readArrayBuffer(caller, deref(caller, ptr, 2)),
+    );
+    state.take(AlkaneId.fromOther(context.self), storageMap);
+    const instance = new AlkaneInstance(
+      context.messageContext,
+      context.self,
+      context.caller,
+      AlkaneContextIncomingRune.fromParcel(incomingRunes),
+      cellpack.inputs,
+      state,
+    );
+    instance.module = instance.engine.module(
+      ALKANES_INDEX.select(cellpack.target.toBytes()).get(),
+    );
+    const result = instance.run();
+    if (result.success) {
+      context.returndata = pipeStorage(
+        readArrayBufferAtOffset(
+          instance.instance.memory(instance.store),
+          result.value,
+        ),
+        AlkaneId.fromOther(context.self),
         state,
       );
-      instance.module = instance.engine.module(
-        ALKANES_INDEX.select(cellpack.target.toBytes()).get(),
-      );
-      const result = instance.run();
-      if (result.success) {
-        context.returndata = pipeStorage(
-          readArrayBufferAtOffset(
-            instance.instance.memory(instance.store),
-            result.value,
-          ),
-          AlkaneId.fromOther(context.self),
-          state,
-        );
-        state.commit();
-      } else {
-        context.returndata = new ArrayBuffer(0);
-        state.rollback();
-      }
-      return context.returndata.byteLength;
-    })
-    .define("env", "__staticcall", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      const context = changetype<AlkaneContext>(caller.context());
-      const state = context.state;
-      const cellpack = Cellpack.fromArrayBuffer(
-        readArrayBuffer(caller, deref(caller, ptr, 0)),
-      );
-      const incomingRunes = AlkaneTransferParcel.parse(
-        readArrayBuffer(caller, deref(caller, ptr, 1)),
-      );
-      state.checkpoint();
-      const storageMap = StorageMap.parseStorageMap(
-        readArrayBuffer(caller, deref(caller, ptr, 2)),
-      );
-      state.take(AlkaneId.fromOther(context.self), storageMap);
-      if (!state.transfer(AlkaneId.fromOther(context.self), cellpack.target, incomingRunes)) {
-        state.rollback();
-        context.returndata = new ArrayBuffer(0);
-	return context.returndata.byteLength;
-      }
-      const instance = new AlkaneInstance(
-        context.messageContext,
+      state.commit();
+    } else {
+      context.returndata = new ArrayBuffer(0);
+      state.rollback();
+    }
+    return context.returndata.byteLength;
+  });
+  console.log("defined __delegatecall");
+  linker.define("env", "__staticcall", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    const context = changetype<AlkaneContext>(caller.context());
+    const state = context.state;
+    const cellpack = Cellpack.fromArrayBuffer(
+      readArrayBuffer(caller, deref(caller, ptr, 0)),
+    );
+    const incomingRunes = AlkaneTransferParcel.parse(
+      readArrayBuffer(caller, deref(caller, ptr, 1)),
+    );
+    state.checkpoint();
+    const storageMap = StorageMap.parseStorageMap(
+      readArrayBuffer(caller, deref(caller, ptr, 2)),
+    );
+    state.take(AlkaneId.fromOther(context.self), storageMap);
+    if (
+      !state.transfer(
+        AlkaneId.fromOther(context.self),
         cellpack.target,
-        context.self,
-        AlkaneContextIncomingRune.fromParcel(incomingRunes),
-        cellpack.inputs,
+        incomingRunes,
+      )
+    ) {
+      state.rollback();
+      context.returndata = new ArrayBuffer(0);
+      return context.returndata.byteLength;
+    }
+    const instance = new AlkaneInstance(
+      context.messageContext,
+      cellpack.target,
+      context.self,
+      AlkaneContextIncomingRune.fromParcel(incomingRunes),
+      cellpack.inputs,
+      state,
+    );
+    context.messageContext.runtime.checkpoint();
+    const result = instance.run();
+    if (result.success) {
+      context.returndata = pipeStorage(
+        readArrayBufferAtOffset(
+          instance.instance.memory(instance.store),
+          result.value,
+        ),
+        cellpack.target,
         state,
       );
-      context.messageContext.runtime.checkpoint();
-      const result = instance.run();
-      if (result.success) {
-        context.returndata = pipeStorage(
-          readArrayBufferAtOffset(
-            instance.instance.memory(instance.store),
-            result.value,
-          ),
-          cellpack.target,
-          state,
-        );
-        state.rollback();
-      } else {
-        context.returndata = new ArrayBuffer(0);
-        state.rollback();
-      }
-      context.messageContext.runtime.rollback();
-      return context.returndata.byteLength;
-    })
-    .define("env", "__returndatacopy", (_caller: usize, ptr: i32): i32 => {
-      const caller = wasmi.Caller.wrap(_caller);
-      writeMemory(
-        caller,
-        deref(caller, ptr, 0),
-        changetype<AlkaneContext>(caller.context()).returndata,
-      );
-      return 0;
-    });
+      state.rollback();
+    } else {
+      context.returndata = new ArrayBuffer(0);
+      state.rollback();
+    }
+    context.messageContext.runtime.rollback();
+    return context.returndata.byteLength;
+  });
+  console.log("defined __staticcall");
+  linker.define("env", "__returndatacopy", (_caller: usize, ptr: i32): i32 => {
+    const caller = wasmi.Caller.wrap(_caller);
+    writeMemory(
+      caller,
+      deref(caller, ptr, 0),
+      changetype<AlkaneContext>(caller.context()).returndata,
+    );
+    return 0;
+  });
+  console.log("defined __returndatacopy");
+  return linker;
 }
 
 export class AlkaneInstance {
@@ -340,6 +379,7 @@ export class AlkaneInstance {
     this.instance = changetype<wasmi.Instance>(0);
     const bytecode = ALKANES_INDEX.select(self.toBytes()).get();
     const engine = wasmi.Engine.default();
+    console.log("engine: " + engine.unwrap().toString(10));
     this.engine = engine;
     const context = new AlkaneContext(
       messageContext,
@@ -357,17 +397,25 @@ export class AlkaneInstance {
       AlkaneInstance.FUEL_LIMIT,
     ));
     this.context = context;
+    console.log("creating linker");
     const linker = (this.linker = makeLinker(engine));
+    console.log("created linker");
     const module = (this.module = engine.module(bytecode));
+    console.log("created module");
     this.instance = linker.instantiate(module, store);
+    console.log("instantiated");
     this.context.instance = this;
+    console.log("created instance");
   }
   call(name: string, args: Array<i32>): wasmi.Result<i32> {
     return this.instance.call(this.store, name, args);
   }
   run(): wasmi.Result<i32> {
     const context: AlkaneContext = this.context;
-    const cellpack = Cellpack.fromTuple(AlkaneId.fromOther(context.self), context.inputs);
+    const cellpack = Cellpack.fromTuple(
+      AlkaneId.fromOther(context.self),
+      context.inputs,
+    );
     if (cellpack.target.isCreate()) {
       context.self.block = u128.from(1);
       context.self.tx = context.messageContext.advanceSequence();
@@ -375,7 +423,10 @@ export class AlkaneInstance {
       if (changetype<usize>(binary) === 0) {
         return wasmi.Result.Err<i32>();
       } else {
-        context.messageContext.runtime.set(ALKANES_INDEX.select(cellpack.target.toBytes()).unwrap(), binary);
+        context.messageContext.runtime.set(
+          ALKANES_INDEX.select(cellpack.target.toBytes()).unwrap(),
+          binary,
+        );
       }
     }
     if (cellpack.target.isCreateReserved()) {
@@ -387,15 +438,28 @@ export class AlkaneInstance {
         return wasmi.Result.Err<i32>();
       } else {
         cellpack.target.block = u128.from(3);
-        context.messageContext.runtime.set(ALKANES_INDEX.select(cellpack.target.toBytes()).unwrap(), binary);
+        context.messageContext.runtime.set(
+          ALKANES_INDEX.select(cellpack.target.toBytes()).unwrap(),
+          binary,
+        );
       }
     }
     if (cellpack.target.isFactory()) {
-      const binary = context.messageContext.runtime.get(ALKANES_INDEX.select(AlkaneId.fromId(cellpack.target.getFactoryType(), cellpack.target.tx).toBytes()).unwrap())
+      const binary = context.messageContext.runtime.get(
+        ALKANES_INDEX.select(
+          AlkaneId.fromId(
+            cellpack.target.getFactoryType(),
+            cellpack.target.tx,
+          ).toBytes(),
+        ).unwrap(),
+      );
       if (binary.byteLength === 0) return wasmi.Result.Err<i32>();
       context.self.block = u128.from(0);
       context.self.tx = context.messageContext.advanceSequence();
-      context.messageContext.runtime.set(ALKANES_INDEX.select(context.self.toBytes()).unwrap(), binary);
+      context.messageContext.runtime.set(
+        ALKANES_INDEX.select(context.self.toBytes()).unwrap(),
+        binary,
+      );
     }
     return this.call("__execute", new Array<i32>());
   }

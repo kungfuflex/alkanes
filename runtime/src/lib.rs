@@ -4,12 +4,61 @@ use core::ffi::CStr;
 use std::os::raw::c_char;
 use wasmi;
 use wasmi::AsContext;
+use std::sync::Arc;
+use std::panic;
+//use std::io::{Write, Result};
+pub use std::fmt::{Error, Write};
+
+pub fn panic_hook(info: &panic::PanicInfo) {
+    let _ = log(Arc::new(info.to_string().as_bytes().to_vec()));
+}
+
+pub fn to_ptr(v: &mut Vec<u8>) -> i32 {
+    return v.as_mut_ptr() as usize as i32;
+}
+pub fn to_arraybuffer_layout(v: Arc<Vec<u8>>) -> Vec<u8> {
+    let mut buffer = Vec::<u8>::new();
+    buffer.extend_from_slice(&v.len().to_le_bytes());
+    buffer.extend_from_slice(v.as_slice());
+    return buffer;
+}
 
 #[link(wasm_import_module = "alkanes")]
 extern "C" {
     fn __new(sz: usize, id: u32) -> usize;
+    fn __console(ptr: usize) -> ();
 }
 
+pub struct Stdout(());
+
+impl Write for Stdout {
+    fn write_str(&mut self, s: &str) -> Result<(), Error> {
+        let data = Arc::new(s.to_string().as_bytes().to_vec());
+        log(data.clone());
+        return Ok(());
+    }
+}
+
+pub fn _stdout() -> Stdout {
+    Stdout(())
+}
+
+pub(crate) use _stdout as stdout;
+
+#[macro_export]
+macro_rules! println {
+  ( $( $x:expr ),* ) => {
+    {
+      writeln!(stdout(), $($x),*).unwrap();
+    }
+  }
+}
+
+pub fn log(v: Arc<Vec<u8>>) -> () {
+    unsafe {
+        __console((to_ptr(&mut to_arraybuffer_layout(v)) + 4) as usize);
+    }
+}
 
 #[no_mangle]
 pub extern "C" fn __wasmi_caller_memory(caller: *mut wasmi::Caller<'static, State>) -> *mut u8 {
@@ -116,6 +165,8 @@ pub extern "C" fn __wasmi_func_wrap(
     func: *const c_char,
     handler: unsafe extern "C" fn(caller: *mut wasmi::Caller<'static, State>, v: i32) -> i32,
 ) -> () {
+    println!("func_wrap from Rust");
+    println!("func_wrap from Rust2");
     let linker: &'static mut wasmi::Linker<State> = unsafe { &mut *_linker };
     let raw_fn_ptr: usize = unsafe {
         std::mem::transmute::<
