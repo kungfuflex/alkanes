@@ -26,7 +26,7 @@ function dumpJSONRPCPayload(payload) {
 function mapToPrimitives(v) {
     switch (typeof v) {
         case "bigint":
-            return v.toString(10);
+            return "0x" + v.toString(16);
         case "object":
             if (v === null)
                 return null;
