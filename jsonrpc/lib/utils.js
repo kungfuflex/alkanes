@@ -5,6 +5,7 @@ exports.bigIntToBase10Recursive = bigIntToBase10Recursive;
 exports.dumpJSONRPCPayload = dumpJSONRPCPayload;
 exports.mapToPrimitives = mapToPrimitives;
 exports.unmapFromPrimitives = unmapFromPrimitives;
+exports.unomapFromPrimitives = unomapFromPrimitives;
 const lodash_1 = require("lodash");
 function bigIntToBase10Recursive(v) {
     if (typeof v === "object") {
@@ -42,10 +43,15 @@ function mapToPrimitives(v) {
 function unmapFromPrimitives(v) {
     switch (typeof v) {
         case "string":
-            if (v !== '0x' && !isNaN((0, exports.stripHexPrefix)(v)))
+            if (v.startsWith("0x")) {
+                const stripped = (0, exports.stripHexPrefix)(v);
+                if (/^[0-9a-fA-F]+$/.test(stripped)) {
+                    return BigInt("0x" + stripped);
+                }
+                return Buffer.from(stripped, "hex");
+            }
+            if (!isNaN(v))
                 return BigInt(v);
-            if (v.substr(0, 2) === "0x" || /^[0-9a-f]+$/.test(v))
-                return Buffer.from((0, exports.stripHexPrefix)(v), "hex");
             return v;
         case "object":
             if (v === null)
@@ -56,6 +62,30 @@ function unmapFromPrimitives(v) {
                 key,
                 unmapFromPrimitives(value),
             ]));
+        default:
+            return v;
+    }
+}
+function unomapFromPrimitives(v) {
+    switch (typeof v) {
+        case "string":
+            if (v.startsWith("0x")) {
+                const stripped = (0, exports.stripHexPrefix)(v);
+                if (/^[0-9a-fA-F]+$/.test(stripped)) {
+                    return BigInt("0x" + stripped);
+                }
+                return Buffer.from(stripped, "hex");
+            }
+            if (!isNaN(v))
+                return BigInt(v);
+            return v;
+        case "object":
+            if (v === null)
+                return null;
+            if (Array.isArray(v)) {
+                return v.map((item) => unmapFromPrimitives(item));
+            }
+            return Object.fromEntries(Object.entries(v).map(([key, value]) => [key, unmapFromPrimitives(value)]));
         default:
             return v;
     }

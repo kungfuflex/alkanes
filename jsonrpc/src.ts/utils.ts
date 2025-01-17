@@ -34,8 +34,14 @@ export function mapToPrimitives(v: any): any {
 export function unmapFromPrimitives(v: any): any {
   switch (typeof v) {
     case "string":
-      if (v !== '0x' && !isNaN(stripHexPrefix(v) as any)) return BigInt(v);
-      if (v.substr(0, 2) === "0x" || /^[0-9a-f]+$/.test(v)) return Buffer.from(stripHexPrefix(v), "hex");
+      if (v.startsWith("0x")) {
+        const stripped = stripHexPrefix(v);
+        if (/^[0-9a-fA-F]+$/.test(stripped)) {
+          return BigInt("0x" + stripped);
+        }
+        return Buffer.from(stripped, "hex");
+      }
+      if (!isNaN(v as any)) return BigInt(v);
       return v;
     case "object":
       if (v === null) return null;
@@ -50,3 +56,31 @@ export function unmapFromPrimitives(v: any): any {
       return v;
   }
 }
+
+export function unomapFromPrimitives(v: any): any {
+  switch (typeof v) {
+    case "string":
+      if (v.startsWith("0x")) {
+        const stripped = stripHexPrefix(v);
+        if (/^[0-9a-fA-F]+$/.test(stripped)) {
+          return BigInt("0x" + stripped);
+        }
+        return Buffer.from(stripped, "hex");
+      }
+      if (!isNaN(v as any)) return BigInt(v);
+      return v;
+
+    case "object":
+      if (v === null) return null;
+      if (Array.isArray(v)) {
+        return v.map((item) => unmapFromPrimitives(item));
+      }
+      return Object.fromEntries(
+        Object.entries(v).map(([key, value]) => [key, unmapFromPrimitives(value)]),
+      );
+
+    default:
+      return v;
+  }
+}
+
