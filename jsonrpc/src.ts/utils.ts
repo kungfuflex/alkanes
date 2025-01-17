@@ -18,7 +18,7 @@ export function dumpJSONRPCPayload(payload: any): string {
 export function mapToPrimitives(v: any): any {
   switch (typeof v) {
     case "bigint":
-      return v.toString(10);
+      return "0x" + v.toString(16);
     case "object":
       if (v === null) return null;
       if (Buffer.isBuffer(v)) return "0x" + v.toString("hex");
