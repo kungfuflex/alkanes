@@ -26,6 +26,7 @@ import { Psbt } from "bitcoinjs-lib";
 import { ProtoStone } from "./protorune/protostone";
 import { toUint128, toBuffer, leftPadByte } from "./bytes";
 import { BlockTag } from "./base-rpc";
+import { encodeRocksDBRequest, decodeRocksDBResponse } from "./rocksdb";
 
 const addHexPrefix = (s) => (s.substr(0, 2) === "0x" ? s : "0x" + s);
 
@@ -197,5 +198,20 @@ export class AlkanesRpc extends BaseRpc {
       pointer: 3,
       protostones: [protostone],
     }).encodedRunestone;
+  }
+
+  async getRocksDBKeys(params: {
+    prefix?: string;
+    limit?: number;
+  }, blockTag: BlockTag = "latest"): Promise<{
+    keys: string[];
+    values: string[];
+  }> {
+    const buffer = encodeRocksDBRequest(params);
+    const byteString = await this._call({
+      method: "getRocksDBKeys",
+      input: buffer,
+    }, blockTag);
+    return decodeRocksDBResponse(byteString);
   }
 }

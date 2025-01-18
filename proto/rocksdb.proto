@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package rocksdb;
+
+message RocksDBRequest {
+  string prefix = 1;
+  uint32 limit = 2;
+}
+
+message RocksDBResponse {
+  repeated string keys = 1;
+  repeated string values = 2;
+} 
