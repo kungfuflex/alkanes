@@ -42,10 +42,10 @@ function mapToPrimitives(v) {
 function unmapFromPrimitives(v) {
     switch (typeof v) {
         case "string":
-            if (v !== '0x' && !isNaN(v))
-                return BigInt(v);
             if (v.substr(0, 2) === "0x" || /^[0-9a-f]+$/.test(v))
                 return Buffer.from((0, exports.stripHexPrefix)(v), "hex");
+            if (!isNaN(v))
+                return BigInt(v);
             return v;
         case "object":
             if (v === null)

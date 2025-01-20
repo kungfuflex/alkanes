@@ -2,9 +2,15 @@ import { SeekBuffer } from "./seekbuffer.js";
 import { alkanes as alkanes_protobuf } from "./proto/alkanes";
 
 export function toProtobufAlkaneTransfer(
-  v: AlkaneTransfer,
+  v: AlkaneTransfer
 ): alkanes_protobuf.AlkaneTransfer {
-  return new alkanes_protobuf.AlkaneTransfer({ id: new alkanes_protobuf.AlkaneId({ block: toUint128(v.id.block), tx: toUint128(v.id.tx) }), value: toUint128(v.value) });
+  return new alkanes_protobuf.AlkaneTransfer({
+    id: new alkanes_protobuf.AlkaneId({
+      block: toUint128(v.id.block),
+      tx: toUint128(v.id.tx),
+    }),
+    value: toUint128(v.value),
+  });
 }
 
 /**
@@ -77,13 +83,11 @@ export function leftPad8(v: string): string {
   return "0".repeat(16 - v.length) + v;
 }
 
-export function toUint128(
-  v: bigint,
-): any {
+export function toUint128(v: bigint): any {
   let hex = leftPad16(v.toString(16));
   return new alkanes_protobuf.uint128({
     hi: BigInt("0x" + hex.substr(0, 16)).toString(10),
-    lo: BigInt("0x" + hex.substr(16, 32)).toString(10)
+    lo: BigInt("0x" + hex.substr(16, 32)).toString(10),
   });
 }
 
@@ -96,8 +100,8 @@ export function u128ToBuffer(v: { hi: bigint; lo: bigint }): bigint {
     "0x" +
       Buffer.from(
         leftPad8(v.hi.toString(16)) + leftPad8(v.lo.toString(16)),
-        "hex",
-      ).toString("hex"),
+        "hex"
+      ).toString("hex")
   );
 }
 
@@ -118,7 +122,7 @@ export function encipher(values: bigint[]): Buffer {
 
 export const toBuffer = (v: number | bigint) => {
   return Buffer.from(
-    Array.from(Buffer.from(leftPad16(v.toString(16)), "hex")).reverse(),
+    Array.from(Buffer.from(leftPad16(v.toString(16)), "hex")).reverse()
   );
 };
 
@@ -175,12 +179,12 @@ export function pack(v: bigint[]): Buffer {
         leftPad15(
           Buffer.from(
             Array.from(
-              Buffer.from(leftPadByte(segment.toString(16)), "hex"),
-            ).reverse(),
-          ).toString("hex"),
+              Buffer.from(leftPadByte(segment.toString(16)), "hex")
+            ).reverse()
+          ).toString("hex")
         ),
-        "hex",
+        "hex"
       );
-    }),
+    })
   );
 }
