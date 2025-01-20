@@ -24,7 +24,7 @@ export function mapToPrimitives(v: any): any {
       if (Buffer.isBuffer(v)) return "0x" + v.toString("hex");
       if (Array.isArray(v)) return v.map((v) => mapToPrimitives(v));
       return Object.fromEntries(
-        Object.entries(v).map(([key, value]) => [key, mapToPrimitives(value)]),
+        Object.entries(v).map(([key, value]) => [key, mapToPrimitives(value)])
       );
     default:
       return v;
@@ -34,8 +34,9 @@ export function mapToPrimitives(v: any): any {
 export function unmapFromPrimitives(v: any): any {
   switch (typeof v) {
     case "string":
-      if (v !== '0x' && !isNaN(v as any)) return BigInt(v);
-      if (v.substr(0, 2) === "0x" || /^[0-9a-f]+$/.test(v)) return Buffer.from(stripHexPrefix(v), "hex");
+      if (v.substr(0, 2) === "0x" || /^[0-9a-f]+$/.test(v))
+        return Buffer.from(stripHexPrefix(v), "hex");
+      if (!isNaN(v as any)) return BigInt(v);
       return v;
     case "object":
       if (v === null) return null;
@@ -44,7 +45,7 @@ export function unmapFromPrimitives(v: any): any {
         Object.entries(v).map(([key, value]) => [
           key,
           unmapFromPrimitives(value),
-        ]),
+        ])
       );
     default:
       return v;
