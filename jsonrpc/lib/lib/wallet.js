@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.encodeProtorunesWalletInput = encodeProtorunesWalletInput;
+exports.encodeTransactionId = encodeTransactionId;
 exports.encodeWalletInput = encodeWalletInput;
+exports.decodeTransactionResult = decodeTransactionResult;
 exports.decodeWalletOutput = decodeWalletOutput;
 exports.encodeRuntimeInput = encodeRuntimeInput;
 exports.decodeRuntimeOutput = decodeRuntimeOutput;
@@ -10,7 +12,7 @@ const protorune_1 = require("./proto/protorune");
 const outpoint_2 = require("./outpoint");
 const utils_1 = require("./utils");
 const bytes_1 = require("./bytes");
-const { ProtorunesWalletRequest, WalletRequest, WalletResponse, RuntimeInput, Runtime, Outpoint, } = protorune_1.protorune;
+const { ProtorunesWalletRequest, TransactionRecord, WalletRequest, WalletResponse, RuntimeInput, Runtime, Outpoint, } = protorune_1.protorune;
 /**
  * Encodes the protocolTag in LEB128 format
  * @param protocolTag
@@ -32,11 +34,21 @@ function encodeProtorunesWalletInput(address, protocolTag) {
     };
     return ("0x" + Buffer.from(new ProtorunesWalletRequest(input).serializeBinary()).toString("hex"));
 }
+function encodeTransactionId(txid) {
+    return Buffer.from((0, utils_1.stripHexPrefix)(txid), 'hex');
+}
 function encodeWalletInput(address) {
     const input = {
         wallet: Uint8Array.from(Buffer.from(address, "utf-8")),
     };
     return ("0x" + Buffer.from(new WalletRequest(input).serializeBinary()).toString("hex"));
+}
+function decodeTransactionResult(hex) {
+    const { transaction, height } = TransactionRecord.deserializeBinary(Uint8Array.from(Buffer.from((0, utils_1.stripHexPrefix)(hex), "hex")));
+    return {
+        transaction: (0, utils_1.addHexPrefix)(Buffer.from(transaction).toString('hex')),
+        height: Number(height)
+    };
 }
 function decodeWalletOutput(hex) {
     const wo = WalletResponse.deserializeBinary(Uint8Array.from(Buffer.from((0, utils_1.stripHexPrefix)(hex), "hex")));

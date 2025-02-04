@@ -46,6 +46,18 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
         const decoded = protowallet.decodeWalletOutput(byteString);
         return decoded;
     }
+    async transactionbyid({ txid }, blockTag = "latest") {
+        const buffer = protowallet.encodeTransactionId(txid);
+        console.log(buffer);
+        const byteString = await this._call({
+            method: "transactionbyid",
+            input: buffer,
+        }, blockTag);
+        console.log(byteString);
+        const decoded = protowallet.decodeTransactionResult(byteString);
+        console.log(decoded);
+        return decoded;
+    }
     async spendablesbyaddress({ address, protocolTag }, blockTag = "latest") {
         const buffer = protowallet.encodeProtorunesWalletInput(address, protocolTag);
         const byteString = await this._call({

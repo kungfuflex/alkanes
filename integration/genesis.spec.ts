@@ -18,6 +18,7 @@ import bip39 = require("bip39");
 import BIP32Factory from "bip32";
 import bitcoin = require("bitcoinjs-lib");
 import * as ecc from "tiny-secp256k1";
+import { addHexPrefix } from "../lib/esm/utils/index.js";
 import { AlkanesRpc } from "../lib/rpc";
 import { getLogger } from "./lib/logger";
 import * as shim from "./lib/shim";
@@ -259,6 +260,7 @@ export async function deployGenesis(): Promise<void> {
     { colors: true, depth: 15 },
   );
   logger.info(await rpc.trace({ txid: revealTxidReversed, vout: 3 }));
+  logger.info(await rpc.transactionbyid({ txid: addHexPrefix(Buffer.from(revealTxid).toString('hex')) }));
 }
 
 (async () => {

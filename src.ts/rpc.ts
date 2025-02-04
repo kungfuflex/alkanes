@@ -52,11 +52,14 @@ export class AlkanesRpc extends BaseRpc {
     transaction: string
   }> {
     const buffer = protowallet.encodeTransactionId(txid);
+    console.log(buffer);
     const byteString = await this._call({
       method: "transactionbyid",
       input: buffer,
     }, blockTag);
+    console.log(byteString);
     const decoded = protowallet.decodeTransactionResult(byteString);
+    console.log(decoded);
     return decoded;
   }
   async spendablesbyaddress({ address, protocolTag }: any, blockTag: BlockTag = "latest"): Promise<{

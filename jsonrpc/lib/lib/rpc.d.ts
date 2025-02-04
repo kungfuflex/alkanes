@@ -8,6 +8,10 @@ export declare class AlkanesRpc extends BaseRpc {
         outpoints: OutPoint[];
         balanceSheet: RuneOutput[];
     }>;
+    transactionbyid({ txid }: any, blockTag?: BlockTag): Promise<{
+        height: number;
+        transaction: string;
+    }>;
     spendablesbyaddress({ address, protocolTag }: any, blockTag?: BlockTag): Promise<{
         outpoints: OutPoint[];
         balanceSheet: RuneOutput[];

@@ -1,12 +1,13 @@
 import { decodeRunes } from "./outpoint";
 import { protorune as protobuf } from "./proto/protorune";
 import { decodeOutpointViewBase, OutPoint, RuneOutput } from "./outpoint";
-import { stripHexPrefix } from "./utils";
+import { addHexPrefix, stripHexPrefix } from "./utils";
 import leb128 from "leb128";
 import { toBuffer, toUint128 } from "./bytes";
 
 const {
   ProtorunesWalletRequest,
+  TransactionRecord,
   WalletRequest,
   WalletResponse,
   RuntimeInput,
@@ -42,6 +43,10 @@ export function encodeProtorunesWalletInput(
   );
 }
 
+export function encodeTransactionId(txid: string): Buffer {
+  return Buffer.from(stripHexPrefix(txid), 'hex')
+}
+
 export function encodeWalletInput(
   address: string,
 ) {
@@ -51,6 +56,17 @@ export function encodeWalletInput(
   return (
     "0x" + Buffer.from(new WalletRequest(input).serializeBinary()).toString("hex")
   );
+}
+
+export function decodeTransactionResult(hex: string): {
+  transaction: string;
+  height: number;
+} {
+  const { transaction, height } = TransactionRecord.deserializeBinary((Uint8Array as any).from((Buffer as any).from(stripHexPrefix(hex), "hex") as Buffer) as Uint8Array);
+  return {
+    transaction: addHexPrefix(Buffer.from(transaction).toString('hex')),
+    height: Number(height)
+  };
 }
 
 export function decodeWalletOutput(hex: string): {
