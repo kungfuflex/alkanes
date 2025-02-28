@@ -46,12 +46,8 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
         const decoded = protowallet.decodeWalletOutput(byteString);
         return decoded;
     }
-    async protoruneholders({ txindex, height }, blockTag = "latest") {
-        const buffer = "0x" +
-            Buffer.from(new protorune_1.protorune.ProtoruneRuneId({
-                height,
-                txindex,
-            }).serializeBinary()).toString("hex");
+    async protoruneholders({ txIndex, height, protocolTag }, blockTag = "latest") {
+        const buffer = protowallet.encodeProtoruneHolders(txIndex, height, protocolTag);
         const byteString = await this._call({
             method: "protoruneholders",
             input: buffer,

@@ -390,20 +390,21 @@ export declare namespace protorune {
     class ProtoruneHoldersRequest extends pb_1.Message {
         #private;
         constructor(data?: any[] | {
-            protocol_tag?: Uint8Array;
+            protocol_tag?: uint128;
             id?: RuneId;
         });
-        get protocol_tag(): Uint8Array;
-        set protocol_tag(value: Uint8Array);
+        get protocol_tag(): uint128;
+        set protocol_tag(value: uint128);
+        get has_protocol_tag(): boolean;
         get id(): RuneId;
         set id(value: RuneId);
         get has_id(): boolean;
         static fromObject(data: {
-            protocol_tag?: Uint8Array;
+            protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
             id?: ReturnType<typeof RuneId.prototype.toObject>;
         }): ProtoruneHoldersRequest;
         toObject(): {
-            protocol_tag?: Uint8Array;
+            protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
             id?: ReturnType<typeof RuneId.prototype.toObject>;
         };
         serialize(): Uint8Array;

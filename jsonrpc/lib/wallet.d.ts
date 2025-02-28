@@ -1,5 +1,4 @@
 import { OutPoint, RuneOutput } from "./outpoint";
-import { ProtoruneRuneId } from "./protorune/protoruneruneid";
 /**
  * Protocol tag needs to be LEB128 encoded to pass into the protocol
  * @param address
@@ -7,7 +6,7 @@ import { ProtoruneRuneId } from "./protorune/protoruneruneid";
  * @returns ProtorunesWalletRequest protobuf hex buffer
  */
 export declare function encodeProtorunesWalletInput(address: string, protocolTag: bigint): string;
-export declare function encodeProtoruneHolders(id: ProtoruneRuneId, protocolTag: bigint): string;
+export declare function encodeProtoruneHolders(txIndex: number, height: number, protocolTag: bigint): string;
 export declare function encodeTransactionId(txid: string): Buffer;
 export declare function encodeWalletInput(address: string): string;
 export declare function decodeTransactionResult(hex: string): {

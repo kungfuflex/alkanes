@@ -49,11 +49,15 @@ export function encodeProtorunesWalletInput(
 }
 
 export function encodeProtoruneHolders(
-  id: ProtoruneRuneId,
+  txIndex: number,
+  height: number,
   protocolTag: bigint
 ) {
   const input: any = {
-    id: Uint8Array.from(Buffer.from(id.toString())),
+    id: new protobuf.RuneId({
+      height,
+      txindex: txIndex,
+    }),
     protocol_tag: encodeProtocolTag(protocolTag),
   };
   return (

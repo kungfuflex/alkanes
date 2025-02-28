@@ -36,9 +36,12 @@ function encodeProtorunesWalletInput(address, protocolTag) {
     return ("0x" +
         Buffer.from(new ProtorunesWalletRequest(input).serializeBinary()).toString("hex"));
 }
-function encodeProtoruneHolders(id, protocolTag) {
+function encodeProtoruneHolders(txIndex, height, protocolTag) {
     const input = {
-        id: Uint8Array.from(Buffer.from(id.toString())),
+        id: new protorune_1.protorune.RuneId({
+            height,
+            txindex: txIndex,
+        }),
         protocol_tag: encodeProtocolTag(protocolTag),
     };
     return ("0x" +

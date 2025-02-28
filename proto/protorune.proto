@@ -80,7 +80,7 @@ message ProtorunesWalletRequest {
 }
 
 message ProtoruneHoldersRequest {
-  bytes protocol_tag = 1;
+  uint128 protocol_tag = 1;
   RuneId id = 2;
 }
 

@@ -15,6 +15,7 @@ const {
   RuntimeInput,
   Runtime,
   Outpoint,
+  RuneId,
 } = protobuf;
 
 /**
@@ -49,12 +50,16 @@ export function encodeProtorunesWalletInput(
 }
 
 export function encodeProtoruneHolders(
-  id: ProtoruneRuneId,
+  txIndex: number,
+  height: number,
   protocolTag: bigint
 ) {
   const input: any = {
-    id: Uint8Array.from(Buffer.from(id.toString())),
     protocol_tag: encodeProtocolTag(protocolTag),
+    id: new RuneId({
+      height,
+      txindex: txIndex,
+    }),
   };
   return (
     "0x" +

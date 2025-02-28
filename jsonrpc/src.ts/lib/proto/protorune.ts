@@ -1462,7 +1462,7 @@ export namespace protorune {
     export class ProtoruneHoldersRequest extends pb_1.Message {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
-            protocol_tag?: Uint8Array;
+            protocol_tag?: uint128;
             id?: RuneId;
         }) {
             super();
@@ -1477,10 +1477,13 @@ export namespace protorune {
             }
         }
         get protocol_tag() {
-            return pb_1.Message.getFieldWithDefault(this, 1, new Uint8Array(0)) as Uint8Array;
+            return pb_1.Message.getWrapperField(this, uint128, 1) as uint128;
         }
-        set protocol_tag(value: Uint8Array) {
-            pb_1.Message.setField(this, 1, value);
+        set protocol_tag(value: uint128) {
+            pb_1.Message.setWrapperField(this, 1, value);
+        }
+        get has_protocol_tag() {
+            return pb_1.Message.getField(this, 1) != null;
         }
         get id() {
             return pb_1.Message.getWrapperField(this, RuneId, 2) as RuneId;
@@ -1492,12 +1495,12 @@ export namespace protorune {
             return pb_1.Message.getField(this, 2) != null;
         }
         static fromObject(data: {
-            protocol_tag?: Uint8Array;
+            protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
             id?: ReturnType<typeof RuneId.prototype.toObject>;
         }): ProtoruneHoldersRequest {
             const message = new ProtoruneHoldersRequest({});
             if (data.protocol_tag != null) {
-                message.protocol_tag = data.protocol_tag;
+                message.protocol_tag = uint128.fromObject(data.protocol_tag);
             }
             if (data.id != null) {
                 message.id = RuneId.fromObject(data.id);
@@ -1506,11 +1509,11 @@ export namespace protorune {
         }
         toObject() {
             const data: {
-                protocol_tag?: Uint8Array;
+                protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
                 id?: ReturnType<typeof RuneId.prototype.toObject>;
             } = {};
             if (this.protocol_tag != null) {
-                data.protocol_tag = this.protocol_tag;
+                data.protocol_tag = this.protocol_tag.toObject();
             }
             if (this.id != null) {
                 data.id = this.id.toObject();
@@ -1521,8 +1524,8 @@ export namespace protorune {
         serialize(w: pb_1.BinaryWriter): void;
         serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
             const writer = w || new pb_1.BinaryWriter();
-            if (this.protocol_tag.length)
-                writer.writeBytes(1, this.protocol_tag);
+            if (this.has_protocol_tag)
+                writer.writeMessage(1, this.protocol_tag, () => this.protocol_tag.serialize(writer));
             if (this.has_id)
                 writer.writeMessage(2, this.id, () => this.id.serialize(writer));
             if (!w)
@@ -1535,7 +1538,7 @@ export namespace protorune {
                     break;
                 switch (reader.getFieldNumber()) {
                     case 1:
-                        message.protocol_tag = reader.readBytes();
+                        reader.readMessage(message.protocol_tag, () => message.protocol_tag = uint128.deserialize(reader));
                         break;
                     case 2:
                         reader.readMessage(message.id, () => message.id = RuneId.deserialize(reader));
