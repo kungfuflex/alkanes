@@ -4,9 +4,11 @@ import { decodeOutpointViewBase, OutPoint, RuneOutput } from "./outpoint";
 import { addHexPrefix, stripHexPrefix } from "./utils";
 import leb128 from "leb128";
 import { toBuffer, toUint128 } from "./bytes";
+import { ProtoruneRuneId } from "./protorune/protoruneruneid";
 
 const {
   ProtorunesWalletRequest,
+  ProtoruneHoldersRequest,
   TransactionRecord,
   WalletRequest,
   WalletResponse,
@@ -20,7 +22,7 @@ const {
  * @param protocolTag
  * @returns the protocolTag in LEB128 format
  */
-function encodeProtocolTag(protocolTag: bigint): { hi: string, lo: string } {
+function encodeProtocolTag(protocolTag: bigint): { hi: string; lo: string } {
   return toUint128(protocolTag);
 }
 
@@ -39,22 +41,40 @@ export function encodeProtorunesWalletInput(
     protocol_tag: encodeProtocolTag(protocolTag),
   };
   return (
-    "0x" + Buffer.from(new ProtorunesWalletRequest(input).serializeBinary()).toString("hex")
+    "0x" +
+    Buffer.from(new ProtorunesWalletRequest(input).serializeBinary()).toString(
+      "hex"
+    )
+  );
+}
+
+export function encodeProtoruneHolders(
+  id: ProtoruneRuneId,
+  protocolTag: bigint
+) {
+  const input: any = {
+    id: Uint8Array.from(Buffer.from(id.toString())),
+    protocol_tag: encodeProtocolTag(protocolTag),
+  };
+  return (
+    "0x" +
+    Buffer.from(new ProtoruneHoldersRequest(input).serializeBinary()).toString(
+      "hex"
+    )
   );
 }
 
 export function encodeTransactionId(txid: string): Buffer {
-  return Buffer.from(stripHexPrefix(txid), 'hex')
+  return Buffer.from(stripHexPrefix(txid), "hex");
 }
 
-export function encodeWalletInput(
-  address: string,
-) {
+export function encodeWalletInput(address: string) {
   const input: any = {
     wallet: Uint8Array.from(Buffer.from(address, "utf-8")),
   };
   return (
-    "0x" + Buffer.from(new WalletRequest(input).serializeBinary()).toString("hex")
+    "0x" +
+    Buffer.from(new WalletRequest(input).serializeBinary()).toString("hex")
   );
 }
 
@@ -62,10 +82,14 @@ export function decodeTransactionResult(hex: string): {
   transaction: string;
   height: number;
 } {
-  const { transaction, height } = TransactionRecord.deserializeBinary((Uint8Array as any).from((Buffer as any).from(stripHexPrefix(hex), "hex") as Buffer) as Uint8Array);
+  const { transaction, height } = TransactionRecord.deserializeBinary(
+    (Uint8Array as any).from(
+      (Buffer as any).from(stripHexPrefix(hex), "hex") as Buffer
+    ) as Uint8Array
+  );
   return {
-    transaction: addHexPrefix(Buffer.from(transaction).toString('hex')),
-    height: Number(height)
+    transaction: addHexPrefix(Buffer.from(transaction).toString("hex")),
+    height: Number(height),
   };
 }
 
@@ -74,7 +98,10 @@ export function decodeWalletOutput(hex: string): {
   balanceSheet: RuneOutput[];
 } {
   const wo = WalletResponse.deserializeBinary(
-    (Uint8Array as any).from((Buffer as any).from(stripHexPrefix(hex), "hex") as Buffer) as Uint8Array);
+    (Uint8Array as any).from(
+      (Buffer as any).from(stripHexPrefix(hex), "hex") as Buffer
+    ) as Uint8Array
+  );
   return {
     outpoints: wo.outpoints.map((op) => decodeOutpointViewBase(op)),
     balanceSheet: decodeRunes(wo.balances),
@@ -85,7 +112,10 @@ export function encodeRuntimeInput(protocolTag: bigint) {
   const input: any = {
     protocolTag: encodeProtocolTag(protocolTag),
   };
-  return "0x" + Buffer.from(new RuntimeInput(input).serializeBinary()).toString("hex");
+  return (
+    "0x" +
+    Buffer.from(new RuntimeInput(input).serializeBinary()).toString("hex")
+  );
 }
 
 export function decodeRuntimeOutput(hex: string) {

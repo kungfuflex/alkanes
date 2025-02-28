@@ -6,6 +6,7 @@ import { OutPoint, RuneOutput } from "./outpoint";
  * @returns ProtorunesWalletRequest protobuf hex buffer
  */
 export declare function encodeProtorunesWalletInput(address: string, protocolTag: bigint): string;
+export declare function encodeProtoruneHolders(id: string, protocolTag: bigint): string;
 export declare function encodeTransactionId(txid: string): Buffer;
 export declare function encodeWalletInput(address: string): string;
 export declare function decodeTransactionResult(hex: string): {

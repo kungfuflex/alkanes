@@ -50,12 +50,14 @@ message Output {
   uint64 value = 2;
 }
 
+
 message OutpointResponse {
   BalanceSheet balances = 1;
   Outpoint outpoint = 2;
   Output output = 3;
   uint32 height = 4;
   uint32 txindex = 5;
+  bytes address = 6;
 }
 
 message PaginationInput {
@@ -75,6 +77,11 @@ message WalletResponse {
 message ProtorunesWalletRequest {
   bytes wallet = 1;
   uint128 protocol_tag = 2;
+}
+
+message ProtoruneHoldersRequest {
+  bytes protocol_tag = 1;
+  RuneId id = 2;
 }
 
 message RunesByHeightRequest {
