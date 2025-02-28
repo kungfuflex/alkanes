@@ -49,7 +49,7 @@ export function encodeProtorunesWalletInput(
   );
 }
 
-export function encodeProtoruneHolders(
+export function encodeProtoruneHoldersInput(
   txIndex: number,
   height: number,
   protocolTag: bigint

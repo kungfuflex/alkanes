@@ -61,7 +61,7 @@ export class AlkanesRpc extends BaseRpc {
     outpoints: OutPoint[];
     balanceSheet: RuneOutput[];
   }> {
-    const buffer = protowallet.encodeProtoruneHolders(
+    const buffer = protowallet.encodeProtoruneHoldersInput(
       txIndex,
       height,
       protocolTag
