@@ -1,43 +1,23 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.runServer = runServer;
-const express_1 = __importDefault(require("express"));
-const body_parser_1 = __importDefault(require("body-parser"));
-const cors_1 = __importDefault(require("cors"));
-const middleware_1 = require("./middleware");
-const logger_1 = require("./logger");
-const execute_1 = require("./execute");
-const logger = (0, logger_1.getLogger)();
-function runServer() {
-    const app = (0, express_1.default)();
-    app.use((0, cors_1.default)());
-    app.use(body_parser_1.default.json({ limit: "100mb" }));
-    app.use(middleware_1.logMiddleware);
-    app.use(function handleError(err, req, res, next) {
-        if (err) {
-            res.status(500).end(JSON.stringify({
-                id: req.body.id,
-                error: { message: err.message, code: err.code },
-                jsonrpc: "2.0",
-            }));
-        }
-        else
-            next();
-    });
-    app.post("*", (req, res) => {
-        (async () => {
-            await (0, execute_1.executeRPC)(req, res);
-        })().catch((err) => logger.error(err));
-    });
-    return new Promise((resolve, reject) => {
-        app.listen(process.env.PORT || 18888, process.env.HOST || "0.0.0.0", (err) => {
-            if (err)
-                reject(err);
-            resolve(app);
-        });
-    });
-}
+__exportStar(require("./utils/index.js"), exports);
+__exportStar(require("./envelope/index.js"), exports);
+__exportStar(require("./bytes.js"), exports);
+__exportStar(require("./protorune/proto_runestone_upgrade.js"), exports);
+__exportStar(require("./protorune/protostone.js"), exports);
+__exportStar(require("./provider/index.js"), exports);
 //# sourceMappingURL=index.js.map

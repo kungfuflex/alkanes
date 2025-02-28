@@ -8,6 +8,14 @@ export declare class AlkanesRpc extends BaseRpc {
         outpoints: OutPoint[];
         balanceSheet: RuneOutput[];
     }>;
+    protoruneholders({ txindex, height }: any, blockTag?: BlockTag): Promise<{
+        outpoints: OutPoint[];
+        balanceSheet: RuneOutput[];
+    }>;
+    transactionbyid({ txid }: any, blockTag?: BlockTag): Promise<{
+        height: number;
+        transaction: string;
+    }>;
     spendablesbyaddress({ address, protocolTag }: any, blockTag?: BlockTag): Promise<{
         outpoints: OutPoint[];
         balanceSheet: RuneOutput[];
@@ -18,15 +26,35 @@ export declare class AlkanesRpc extends BaseRpc {
     }>;
     runesbyheight({ height }: {
         height: number;
-    }, blockTag?: BlockTag): Promise<any>;
+    }, blockTag?: BlockTag): Promise<{
+        runes: Array<{
+            runeId: string;
+            name: string;
+            divisibility: number;
+            spacers: number;
+            symbol: string;
+        }>;
+    }>;
     protorunesbyheight({ height, protocolTag }: {
         height: number;
         protocolTag: bigint;
-    }, blockTag?: BlockTag): Promise<any>;
+    }, blockTag?: BlockTag): Promise<{
+        runes: Array<{
+            runeId: string;
+            name: string;
+            divisibility: number;
+            spacers: number;
+            symbol: string;
+        }>;
+    }>;
     protorunesbyoutpoint({ txid, vout, protocolTag }: {
         txid: any;
         vout: any;
         protocolTag: any;
+    }, blockTag?: BlockTag): Promise<any>;
+    runesbyoutpoint({ txid, vout }: {
+        txid: any;
+        vout: any;
     }, blockTag?: BlockTag): Promise<any>;
     trace({ txid, vout }: {
         txid: string;

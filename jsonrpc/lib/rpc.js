@@ -46,6 +46,28 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
         const decoded = protowallet.decodeWalletOutput(byteString);
         return decoded;
     }
+    async protoruneholders({ txindex, height }, blockTag = "latest") {
+        const buffer = "0x" +
+            Buffer.from(new protorune_1.protorune.ProtoruneRuneId({
+                height,
+                txindex,
+            }).serializeBinary()).toString("hex");
+        const byteString = await this._call({
+            method: "protoruneholders",
+            input: buffer,
+        }, blockTag);
+        const decoded = protowallet.decodeWalletOutput(byteString);
+        return decoded;
+    }
+    async transactionbyid({ txid }, blockTag = "latest") {
+        const buffer = protowallet.encodeTransactionId(txid);
+        const byteString = await this._call({
+            method: "transactionbyid",
+            input: buffer,
+        }, blockTag);
+        const decoded = protowallet.decodeTransactionResult(byteString);
+        return decoded;
+    }
     async spendablesbyaddress({ address, protocolTag }, blockTag = "latest") {
         const buffer = protowallet.encodeProtorunesWalletInput(address, protocolTag);
         const byteString = await this._call({
@@ -86,6 +108,17 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
         const buffer = "0x" +
             Buffer.from(new protorune_1.protorune.OutpointWithProtocol({
                 protocol: (0, bytes_1.toUint128)(protocolTag),
+                txid: Buffer.from(txid, "hex"),
+                vout,
+            }).serializeBinary()).toString("hex");
+        return invoke.decodeOutpointResponse(await this._call({
+            method: "protorunesbyoutpoint",
+            input: buffer,
+        }, blockTag));
+    }
+    async runesbyoutpoint({ txid, vout }, blockTag = "latest") {
+        const buffer = "0x" +
+            Buffer.from(new protorune_1.protorune.Outpoint({
                 txid: Buffer.from(txid, "hex"),
                 vout,
             }).serializeBinary()).toString("hex");

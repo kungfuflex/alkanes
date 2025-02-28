@@ -1,24 +1,20 @@
 {
-    "compilerOptions": {
-        "allowUnusedLabels": true,
-        "experimentalDecorators": true,
-        "module": "commonjs",
-        "noUnusedParameters": false,
-        "noUnusedLocals": false,
-        "moduleResolution": "node",
-	"resolveJsonModule": true,
-        "target": "es2020",
-        "noImplicitAny": false,
-        "esModuleInterop": true,
-        "sourceMap": true,
-        "outDir": "./lib",
-	"strictNullChecks": false,
-        "declaration": true,
-        "types": [
-            "node"
-        ]
-    },
-    "include": [
-        "./src.ts/*"
-    ]
+  "compilerOptions": {
+    "allowUnusedLabels": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "noUnusedParameters": false,
+    "noUnusedLocals": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "target": "es2020",
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "outDir": "./lib",
+    "strictNullChecks": false,
+    "declaration": true,
+    "types": ["node"]
+  },
+  "include": ["./src.ts/*", "src.ts1"]
 }
