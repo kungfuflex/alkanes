@@ -255,6 +255,7 @@ export declare namespace protorune {
             output?: Output;
             height?: number;
             txindex?: number;
+            address?: Uint8Array;
         });
         get balances(): BalanceSheet;
         set balances(value: BalanceSheet);
@@ -269,12 +270,15 @@ export declare namespace protorune {
         set height(value: number);
         get txindex(): number;
         set txindex(value: number);
+        get address(): Uint8Array;
+        set address(value: Uint8Array);
         static fromObject(data: {
             balances?: ReturnType<typeof BalanceSheet.prototype.toObject>;
             outpoint?: ReturnType<typeof Outpoint.prototype.toObject>;
             output?: ReturnType<typeof Output.prototype.toObject>;
             height?: number;
             txindex?: number;
+            address?: Uint8Array;
         }): OutpointResponse;
         toObject(): {
             balances?: ReturnType<typeof BalanceSheet.prototype.toObject>;
@@ -282,6 +286,7 @@ export declare namespace protorune {
             output?: ReturnType<typeof Output.prototype.toObject>;
             height?: number;
             txindex?: number;
+            address?: Uint8Array;
         };
         serialize(): Uint8Array;
         serialize(w: pb_1.BinaryWriter): void;
@@ -381,6 +386,32 @@ export declare namespace protorune {
         static deserialize(bytes: Uint8Array | pb_1.BinaryReader): ProtorunesWalletRequest;
         serializeBinary(): Uint8Array;
         static deserializeBinary(bytes: Uint8Array): ProtorunesWalletRequest;
+    }
+    class ProtoruneHoldersRequest extends pb_1.Message {
+        #private;
+        constructor(data?: any[] | {
+            protocol_tag?: uint128;
+            id?: RuneId;
+        });
+        get protocol_tag(): uint128;
+        set protocol_tag(value: uint128);
+        get has_protocol_tag(): boolean;
+        get id(): RuneId;
+        set id(value: RuneId);
+        get has_id(): boolean;
+        static fromObject(data: {
+            protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
+            id?: ReturnType<typeof RuneId.prototype.toObject>;
+        }): ProtoruneHoldersRequest;
+        toObject(): {
+            protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
+            id?: ReturnType<typeof RuneId.prototype.toObject>;
+        };
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): ProtoruneHoldersRequest;
+        serializeBinary(): Uint8Array;
+        static deserializeBinary(bytes: Uint8Array): ProtoruneHoldersRequest;
     }
     class RunesByHeightRequest extends pb_1.Message {
         #private;

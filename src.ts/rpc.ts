@@ -55,15 +55,14 @@ export class AlkanesRpc extends BaseRpc {
   }
 
   async protoruneholders(
-    { txIndex, height, protocolTag }: any,
+    { id, protocolTag }: any,
     blockTag: BlockTag = "latest"
   ): Promise<{
     outpoints: OutPoint[];
     balanceSheet: RuneOutput[];
   }> {
     const buffer = protowallet.encodeProtoruneHoldersInput(
-      txIndex,
-      height,
+      id,
       protocolTag
     );
 

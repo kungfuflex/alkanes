@@ -50,17 +50,17 @@ export function encodeProtorunesWalletInput(
 }
 
 export function encodeProtoruneHoldersInput(
-  txIndex: number,
-  height: number,
+  id: {
+    height: bigint;
+    txindex: bigint;
+  },
   protocolTag: bigint
 ) {
   const input: any = {
     protocol_tag: encodeProtocolTag(protocolTag),
-    id: new RuneId({
-      height,
-      txindex: txIndex,
-    }),
+    id,
   };
+  console.log(input);
   return (
     "0x" +
     Buffer.from(new ProtoruneHoldersRequest(input).serializeBinary()).toString(

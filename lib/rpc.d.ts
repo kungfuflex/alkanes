@@ -8,7 +8,7 @@ export declare class AlkanesRpc extends BaseRpc {
         outpoints: OutPoint[];
         balanceSheet: RuneOutput[];
     }>;
-    protoruneholders({ txindex, height }: any, blockTag?: BlockTag): Promise<{
+    protoruneholders({ id, protocolTag }: any, blockTag?: BlockTag): Promise<{
         outpoints: OutPoint[];
         balanceSheet: RuneOutput[];
     }>;

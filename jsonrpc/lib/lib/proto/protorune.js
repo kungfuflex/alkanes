@@ -15,23 +15,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
@@ -47,7 +37,7 @@ exports.protorune = void 0;
 const pb_1 = __importStar(require("google-protobuf"));
 var protorune;
 (function (protorune) {
-    var _RuneId_one_of_decls, _TransactionRecord_one_of_decls, _ProtoruneRuneId_one_of_decls, _Rune_one_of_decls, _BalanceSheetItem_one_of_decls, _BalanceSheet_one_of_decls, _Outpoint_one_of_decls, _OutpointWithProtocol_one_of_decls, _Output_one_of_decls, _OutpointResponse_one_of_decls, _PaginationInput_one_of_decls, _WalletRequest_one_of_decls, _WalletResponse_one_of_decls, _ProtorunesWalletRequest_one_of_decls, _RunesByHeightRequest_one_of_decls, _RunesResponse_one_of_decls, _ProtoBurn_one_of_decls, _uint128_one_of_decls, _Clause_one_of_decls, _Predicate_one_of_decls, _ProtoMessage_one_of_decls, _RuntimeInput_one_of_decls, _Runtime_one_of_decls, _ProtorunesByHeightRequest_one_of_decls;
+    var _RuneId_one_of_decls, _TransactionRecord_one_of_decls, _ProtoruneRuneId_one_of_decls, _Rune_one_of_decls, _BalanceSheetItem_one_of_decls, _BalanceSheet_one_of_decls, _Outpoint_one_of_decls, _OutpointWithProtocol_one_of_decls, _Output_one_of_decls, _OutpointResponse_one_of_decls, _PaginationInput_one_of_decls, _WalletRequest_one_of_decls, _WalletResponse_one_of_decls, _ProtorunesWalletRequest_one_of_decls, _ProtoruneHoldersRequest_one_of_decls, _RunesByHeightRequest_one_of_decls, _RunesResponse_one_of_decls, _ProtoBurn_one_of_decls, _uint128_one_of_decls, _Clause_one_of_decls, _Predicate_one_of_decls, _ProtoMessage_one_of_decls, _RuntimeInput_one_of_decls, _Runtime_one_of_decls, _ProtorunesByHeightRequest_one_of_decls;
     class RuneId extends pb_1.Message {
         constructor(data) {
             super();
@@ -896,6 +886,9 @@ var protorune;
                 if ("txindex" in data && data.txindex != undefined) {
                     this.txindex = data.txindex;
                 }
+                if ("address" in data && data.address != undefined) {
+                    this.address = data.address;
+                }
             }
         }
         get balances() {
@@ -937,6 +930,12 @@ var protorune;
         set txindex(value) {
             pb_1.Message.setField(this, 5, value);
         }
+        get address() {
+            return pb_1.Message.getFieldWithDefault(this, 6, new Uint8Array(0));
+        }
+        set address(value) {
+            pb_1.Message.setField(this, 6, value);
+        }
         static fromObject(data) {
             const message = new OutpointResponse({});
             if (data.balances != null) {
@@ -953,6 +952,9 @@ var protorune;
             }
             if (data.txindex != null) {
                 message.txindex = data.txindex;
+            }
+            if (data.address != null) {
+                message.address = data.address;
             }
             return message;
         }
@@ -973,6 +975,9 @@ var protorune;
             if (this.txindex != null) {
                 data.txindex = this.txindex;
             }
+            if (this.address != null) {
+                data.address = this.address;
+            }
             return data;
         }
         serialize(w) {
@@ -987,6 +992,8 @@ var protorune;
                 writer.writeUint32(4, this.height);
             if (this.txindex != 0)
                 writer.writeUint32(5, this.txindex);
+            if (this.address.length)
+                writer.writeBytes(6, this.address);
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -1010,6 +1017,9 @@ var protorune;
                         break;
                     case 5:
                         message.txindex = reader.readUint32();
+                        break;
+                    case 6:
+                        message.address = reader.readBytes();
                         break;
                     default: reader.skipField();
                 }
@@ -1335,6 +1345,93 @@ var protorune;
     }
     _ProtorunesWalletRequest_one_of_decls = new WeakMap();
     protorune.ProtorunesWalletRequest = ProtorunesWalletRequest;
+    class ProtoruneHoldersRequest extends pb_1.Message {
+        constructor(data) {
+            super();
+            _ProtoruneHoldersRequest_one_of_decls.set(this, []);
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], __classPrivateFieldGet(this, _ProtoruneHoldersRequest_one_of_decls, "f"));
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("protocol_tag" in data && data.protocol_tag != undefined) {
+                    this.protocol_tag = data.protocol_tag;
+                }
+                if ("id" in data && data.id != undefined) {
+                    this.id = data.id;
+                }
+            }
+        }
+        get protocol_tag() {
+            return pb_1.Message.getWrapperField(this, uint128, 1);
+        }
+        set protocol_tag(value) {
+            pb_1.Message.setWrapperField(this, 1, value);
+        }
+        get has_protocol_tag() {
+            return pb_1.Message.getField(this, 1) != null;
+        }
+        get id() {
+            return pb_1.Message.getWrapperField(this, RuneId, 2);
+        }
+        set id(value) {
+            pb_1.Message.setWrapperField(this, 2, value);
+        }
+        get has_id() {
+            return pb_1.Message.getField(this, 2) != null;
+        }
+        static fromObject(data) {
+            const message = new ProtoruneHoldersRequest({});
+            if (data.protocol_tag != null) {
+                message.protocol_tag = uint128.fromObject(data.protocol_tag);
+            }
+            if (data.id != null) {
+                message.id = RuneId.fromObject(data.id);
+            }
+            return message;
+        }
+        toObject() {
+            const data = {};
+            if (this.protocol_tag != null) {
+                data.protocol_tag = this.protocol_tag.toObject();
+            }
+            if (this.id != null) {
+                data.id = this.id.toObject();
+            }
+            return data;
+        }
+        serialize(w) {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.has_protocol_tag)
+                writer.writeMessage(1, this.protocol_tag, () => this.protocol_tag.serialize(writer));
+            if (this.has_id)
+                writer.writeMessage(2, this.id, () => this.id.serialize(writer));
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes) {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new ProtoruneHoldersRequest();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        reader.readMessage(message.protocol_tag, () => message.protocol_tag = uint128.deserialize(reader));
+                        break;
+                    case 2:
+                        reader.readMessage(message.id, () => message.id = RuneId.deserialize(reader));
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary() {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes) {
+            return ProtoruneHoldersRequest.deserialize(bytes);
+        }
+    }
+    _ProtoruneHoldersRequest_one_of_decls = new WeakMap();
+    protorune.ProtoruneHoldersRequest = ProtoruneHoldersRequest;
     class RunesByHeightRequest extends pb_1.Message {
         constructor(data) {
             super();

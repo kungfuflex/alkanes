@@ -16,5 +16,5 @@
     "declaration": true,
     "types": ["node"]
   },
-  "include": ["./src.ts/*", "src.ts1"]
+  "include": ["./src.ts/*", "src.ts"]
 }
