@@ -39,7 +39,8 @@ function encodeProtorunesWalletInput(address, protocolTag) {
 function encodeProtoruneHoldersInput(id, protocolTag) {
     const input = {
         protocol_tag: encodeProtocolTag(protocolTag),
-        id,
+        height: id.height,
+        txindex: id.txindex,
     };
     console.log(input);
     return ("0x" +
