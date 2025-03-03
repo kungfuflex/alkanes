@@ -1463,8 +1463,8 @@ export namespace protorune {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
             protocol_tag?: uint128;
-            height?: uint128;
-            txindex?: uint128;
+            height?: number;
+            txindex?: number;
         }) {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -1490,54 +1490,48 @@ export namespace protorune {
             return pb_1.Message.getField(this, 1) != null;
         }
         get height() {
-            return pb_1.Message.getWrapperField(this, uint128, 2) as uint128;
+            return pb_1.Message.getFieldWithDefault(this, 2, 0) as number;
         }
-        set height(value: uint128) {
-            pb_1.Message.setWrapperField(this, 2, value);
-        }
-        get has_height() {
-            return pb_1.Message.getField(this, 2) != null;
+        set height(value: number) {
+            pb_1.Message.setField(this, 2, value);
         }
         get txindex() {
-            return pb_1.Message.getWrapperField(this, uint128, 3) as uint128;
+            return pb_1.Message.getFieldWithDefault(this, 3, 0) as number;
         }
-        set txindex(value: uint128) {
-            pb_1.Message.setWrapperField(this, 3, value);
-        }
-        get has_txindex() {
-            return pb_1.Message.getField(this, 3) != null;
+        set txindex(value: number) {
+            pb_1.Message.setField(this, 3, value);
         }
         static fromObject(data: {
             protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
-            height?: ReturnType<typeof uint128.prototype.toObject>;
-            txindex?: ReturnType<typeof uint128.prototype.toObject>;
+            height?: number;
+            txindex?: number;
         }): ProtoruneHoldersRequest {
             const message = new ProtoruneHoldersRequest({});
             if (data.protocol_tag != null) {
                 message.protocol_tag = uint128.fromObject(data.protocol_tag);
             }
             if (data.height != null) {
-                message.height = uint128.fromObject(data.height);
+                message.height = data.height;
             }
             if (data.txindex != null) {
-                message.txindex = uint128.fromObject(data.txindex);
+                message.txindex = data.txindex;
             }
             return message;
         }
         toObject() {
             const data: {
                 protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
-                height?: ReturnType<typeof uint128.prototype.toObject>;
-                txindex?: ReturnType<typeof uint128.prototype.toObject>;
+                height?: number;
+                txindex?: number;
             } = {};
             if (this.protocol_tag != null) {
                 data.protocol_tag = this.protocol_tag.toObject();
             }
             if (this.height != null) {
-                data.height = this.height.toObject();
+                data.height = this.height;
             }
             if (this.txindex != null) {
-                data.txindex = this.txindex.toObject();
+                data.txindex = this.txindex;
             }
             return data;
         }
@@ -1547,10 +1541,10 @@ export namespace protorune {
             const writer = w || new pb_1.BinaryWriter();
             if (this.has_protocol_tag)
                 writer.writeMessage(1, this.protocol_tag, () => this.protocol_tag.serialize(writer));
-            if (this.has_height)
-                writer.writeMessage(2, this.height, () => this.height.serialize(writer));
-            if (this.has_txindex)
-                writer.writeMessage(3, this.txindex, () => this.txindex.serialize(writer));
+            if (this.height != 0)
+                writer.writeUint32(2, this.height);
+            if (this.txindex != 0)
+                writer.writeUint32(3, this.txindex);
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -1564,10 +1558,10 @@ export namespace protorune {
                         reader.readMessage(message.protocol_tag, () => message.protocol_tag = uint128.deserialize(reader));
                         break;
                     case 2:
-                        reader.readMessage(message.height, () => message.height = uint128.deserialize(reader));
+                        message.height = reader.readUint32();
                         break;
                     case 3:
-                        reader.readMessage(message.txindex, () => message.txindex = uint128.deserialize(reader));
+                        message.txindex = reader.readUint32();
                         break;
                     default: reader.skipField();
                 }

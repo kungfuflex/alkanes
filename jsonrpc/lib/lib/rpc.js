@@ -52,6 +52,7 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
             method: "protoruneholders",
             input: buffer,
         }, blockTag);
+        console.log("byteString", byteString);
         const decoded = protowallet.decodeWalletOutput(byteString);
         return decoded;
     }

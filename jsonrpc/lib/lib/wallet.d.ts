@@ -7,8 +7,8 @@ import { OutPoint, RuneOutput } from "./outpoint";
  */
 export declare function encodeProtorunesWalletInput(address: string, protocolTag: bigint): string;
 export declare function encodeProtoruneHoldersInput(id: {
-    height: bigint;
-    txindex: bigint;
+    height: number;
+    txindex: number;
 }, protocolTag: bigint): string;
 export declare function encodeTransactionId(txid: string): Buffer;
 export declare function encodeWalletInput(address: string): string;

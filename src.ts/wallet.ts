@@ -51,8 +51,8 @@ export function encodeProtorunesWalletInput(
 
 export function encodeProtoruneHoldersInput(
   id: {
-    height: bigint;
-    txindex: bigint;
+    height: number;
+    txindex: number;
   },
   protocolTag: bigint
 ) {

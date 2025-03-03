@@ -40,6 +40,7 @@ export class BaseRpc {
 	'Accept': 'application/json'
       }
     })).json());
+    console.log("response", response);
     return addHexPrefix(response.result);
   }
 

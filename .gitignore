@@ -4,3 +4,7 @@
 *.swp
 *.swo
 node_modules
+.PROJECT_BRIEF.md
+.clinerules
+.projectjournal
+PROJECT_BRIEF.md

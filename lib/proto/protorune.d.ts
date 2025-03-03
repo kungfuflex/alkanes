@@ -391,27 +391,25 @@ export declare namespace protorune {
         #private;
         constructor(data?: any[] | {
             protocol_tag?: uint128;
-            height?: uint128;
-            txindex?: uint128;
+            height?: number;
+            txindex?: number;
         });
         get protocol_tag(): uint128;
         set protocol_tag(value: uint128);
         get has_protocol_tag(): boolean;
-        get height(): uint128;
-        set height(value: uint128);
-        get has_height(): boolean;
-        get txindex(): uint128;
-        set txindex(value: uint128);
-        get has_txindex(): boolean;
+        get height(): number;
+        set height(value: number);
+        get txindex(): number;
+        set txindex(value: number);
         static fromObject(data: {
             protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
-            height?: ReturnType<typeof uint128.prototype.toObject>;
-            txindex?: ReturnType<typeof uint128.prototype.toObject>;
+            height?: number;
+            txindex?: number;
         }): ProtoruneHoldersRequest;
         toObject(): {
             protocol_tag?: ReturnType<typeof uint128.prototype.toObject>;
-            height?: ReturnType<typeof uint128.prototype.toObject>;
-            txindex?: ReturnType<typeof uint128.prototype.toObject>;
+            height?: number;
+            txindex?: number;
         };
         serialize(): Uint8Array;
         serialize(w: pb_1.BinaryWriter): void;
