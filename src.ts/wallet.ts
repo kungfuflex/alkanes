@@ -58,8 +58,8 @@ export function encodeProtoruneHoldersInput(
 ) {
   const input: any = {
     protocol_tag: encodeProtocolTag(protocolTag),
-    height: id.height,
-    txindex: id.txindex,
+    height: toUint128(BigInt(id.height)),
+    txindex: toUint128(BigInt(id.txindex)),
   };
   console.log(input);
   return (
