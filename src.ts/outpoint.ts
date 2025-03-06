@@ -35,6 +35,7 @@ export type OutPoint = {
     script: string;
   };
   height: number;
+  address?: string;
   txindex: number;
 };
 
@@ -99,6 +100,7 @@ export function decodeOutpointViewBase(op: any): OutPoint {
       : { value: "", script: "" },
     height: op.height,
     txindex: op.txindex,
+    address: op.address
   };
 }
 
