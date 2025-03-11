@@ -21,6 +21,7 @@ export type OutPoint = {
         script: string;
     };
     height: number;
+    address?: string;
     txindex: number;
 };
 export declare function encodeOutpointInput(txid: string, pos: number): string;
