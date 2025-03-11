@@ -36,6 +36,7 @@ services:
     image: memshrew:alkanes
     environment:
       DAEMON_RPC_ADDR: http://bitcoind:18443
+      P2P_ADDR: bitcoind:18444
       AUTH: bitcoinrpc:bitcoinrpc
       LOG_FILTERS: none,memshrew=debug
       HOST: 0.0.0.0

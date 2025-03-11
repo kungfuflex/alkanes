@@ -1,4 +1,4 @@
-import util from "util";
+import util from "node:util";
 import {
   createLogger as createWinstonLogger,
   transports,
@@ -28,14 +28,13 @@ const customColors = {
   silly: "magenta",
   custom: "blue"
 };
-
-const customFormatter = ({ level, message, label, timestamp }) => {
-  return `${label}|${timestamp}|${level}|${
-    typeof message === "string"
-      ? message
-      : util.inspect(message, { colors: true, depth: 15 })
-  }`;
+const customFormatter = ({ level, message, label, timestamp, ...rest }) => {
+  // If splat exists, it contains additional arguments passed to the logger
+  const splat = rest[Symbol.for('splat')] || [];
+  const formattedMessage = [message, ...splat].map((v) => typeof v === 'string' ? v : util.inspect(v, { colors: true, depth: 100 })).join(' ');
+  return `${label}|${timestamp}|${level}|${formattedMessage}`;
 };
+
 
 const createLogger = (proc?: string): any => {
   addColors(customColors);

@@ -12,18 +12,60 @@ export type BlockTag = string
 
 export class BaseRpc {
   public baseUrl: string;
+  public memshrewUrl: string;
   public blockTag: BlockTag;
   constructor({
     baseUrl,
+    memshrewUrl,
     blockTag
   }: any) {
     this.baseUrl = baseUrl || 'http://localhost:8080';
+    this.memshrewUrl = memshrewUrl || baseUrl;
     this.blockTag = blockTag || 'latest';
+  }
+  async _preview({
+    method,
+    input
+  }): Promise<string> {
+    const buildResult = await (await fetch(url.format({
+      ...url.parse(this.memshrewUrl || this.baseUrl),
+      pathname: '/'
+    }), {
+    })).json();
+    if (buildResult.error) {
+      const err = new Error(buildResult.error.message);
+      (err as any).code = buildResult.error.code;
+      throw err;
+    }
+    if (buildResult.length === 0) {
+      throw Error('no mempool block built by memshrew');
+    }
+    const blockHex = buildResult.result[0];
+    const response = (await (await fetch(url.format({
+      ...url.parse(this.baseUrl),
+      pathname: '/'
+    }), {
+      method: 'POST',
+      body: JSON.stringify({
+        id: id++,
+	jsonrpc: '2.0',
+	method: 'metashrew_preview',
+	params: [ blockHex, method, input, "latest" ]
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+	'Accept': 'application/json'
+      }
+    })).json());
+    return addHexPrefix(response.result);
   }
   async _call({
     method,
     input
   }, blockTag: BlockTag = "latest"): Promise<string> {
+    if (blockTag === "pending") {
+      return await this._preview({ method, input });
+    }
     const response = (await (await fetch(url.format({
       ...url.parse(this.baseUrl),
       pathname: '/'

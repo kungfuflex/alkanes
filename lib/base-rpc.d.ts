@@ -2,8 +2,13 @@ import { OutPoint, RuneOutput } from "./outpoint";
 export type BlockTag = string;
 export declare class BaseRpc {
     baseUrl: string;
+    memshrewUrl: string;
     blockTag: BlockTag;
-    constructor({ baseUrl, blockTag }: any);
+    constructor({ baseUrl, memshrewUrl, blockTag }: any);
+    _preview({ method, input }: {
+        method: any;
+        input: any;
+    }): Promise<string>;
     _call({ method, input }: {
         method: any;
         input: any;

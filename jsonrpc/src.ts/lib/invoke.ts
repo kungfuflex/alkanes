@@ -138,6 +138,32 @@ export function encodeTraceRequest({
   );
 }
 
+export function encodeTraceBlockRequest({
+  block
+}: {
+  block: bigint | number
+}): string {
+  const input = {
+    block: Number(block)
+  }
+  return ("0x" + Buffer.from(new alkanes_protobuf.TraceBlockRequest(input).serializeBinary()).toString('hex'));
+}
+
+export function decodeTraceBlockResponse(hex: string): any {
+  return alkanes_protobuf.TraceBlockResponse.deserializeBinary(Buffer.from(stripHexPrefix(hex), "hex")).traces.map(({
+    outpoint,
+    trace
+  }) => {
+    return {
+      outpoint: {
+        txid: Buffer.from(outpoint.txid).toString('hex'),
+        vout: outpoint.vout
+      },
+      trace: trace.events.map((v) => toEvent(v))
+    }
+  });
+}
+
 export function decodeTraceResponse(hex: string): any {
   const resp = alkanes_protobuf.AlkanesTrace.deserializeBinary(
     Buffer.from(stripHexPrefix(hex), "hex"),

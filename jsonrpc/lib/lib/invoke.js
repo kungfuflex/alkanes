@@ -9,6 +9,8 @@ exports.toContext = toContext;
 exports.toResponse = toResponse;
 exports.toEvent = toEvent;
 exports.encodeTraceRequest = encodeTraceRequest;
+exports.encodeTraceBlockRequest = encodeTraceBlockRequest;
+exports.decodeTraceBlockResponse = decodeTraceBlockResponse;
 exports.decodeTraceResponse = decodeTraceResponse;
 exports.encodeSimulateRequest = encodeSimulateRequest;
 exports.decodeSimulateResponse = decodeSimulateResponse;
@@ -125,6 +127,23 @@ function encodeTraceRequest({ txid, vout, }) {
     };
     return ("0x" +
         Buffer.from(new protorune_1.protorune.Outpoint(input).serializeBinary()).toString("hex"));
+}
+function encodeTraceBlockRequest({ block }) {
+    const input = {
+        block: Number(block)
+    };
+    return ("0x" + Buffer.from(new alkanes_1.alkanes.TraceBlockRequest(input).serializeBinary()).toString('hex'));
+}
+function decodeTraceBlockResponse(hex) {
+    return alkanes_1.alkanes.TraceBlockResponse.deserializeBinary(Buffer.from((0, utils_1.stripHexPrefix)(hex), "hex")).traces.map(({ outpoint, trace }) => {
+        return {
+            outpoint: {
+                txid: Buffer.from(outpoint.txid).toString('hex'),
+                vout: outpoint.vout
+            },
+            trace: trace.events.map((v) => toEvent(v))
+        };
+    });
 }
 function decodeTraceResponse(hex) {
     const resp = alkanes_1.alkanes.AlkanesTrace.deserializeBinary(Buffer.from((0, utils_1.stripHexPrefix)(hex), "hex"));

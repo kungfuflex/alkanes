@@ -239,8 +239,8 @@ export async function deployGenesis(): Promise<void> {
   logger.info(
     await rpc.simulate({
       alkanes: [],
-      transaction: "",
-      block: "",
+      transaction: "0x",
+      block: "0x",
       height: 20000n,
       txindex: 0,
       target: {

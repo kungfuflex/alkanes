@@ -43,6 +43,7 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
             method: "protorunesbyaddress",
             input: buffer,
         }, blockTag);
+        console.log(byteString);
         const decoded = protowallet.decodeWalletOutput(byteString);
         return decoded;
     }
@@ -123,6 +124,15 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
             method: "protorunesbyoutpoint",
             input: buffer,
         }, blockTag));
+    }
+    async traceblock({ block }, blockTag = "latest") {
+        const buffer = invoke.encodeTraceBlockRequest({ block });
+        const byteString = await this._call({
+            method: "traceblock",
+            input: buffer,
+        }, blockTag);
+        const decoded = invoke.decodeTraceBlockResponse(byteString);
+        return decoded;
     }
     async trace({ txid, vout }, blockTag = "latest") {
         const buffer = invoke.encodeTraceRequest({

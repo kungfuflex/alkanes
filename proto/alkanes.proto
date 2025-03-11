@@ -85,6 +85,16 @@ message AlkanesTraceEvent {
   }
 }
 
+message AlkanesBlockEvent {
+    AlkanesTrace traces = 1;
+    Outpoint outpoint = 2;
+    uint64 txindex = 3;
+}
+
+message AlkanesBlockTraceEvent {
+    repeated AlkanesBlockEvent events = 1;
+}
+
 message AlkanesTrace {
   repeated AlkanesTraceEvent events = 1;
 }
@@ -101,4 +111,22 @@ message AlkaneInventoryRequest {
 
 message AlkaneInventoryResponse {
   repeated AlkaneTransfer alkanes = 1;
+}
+
+message Outpoint {
+  bytes txid = 1;
+  uint32 vout = 2;
+}
+
+message Trace {
+  Outpoint outpoint = 1;
+  AlkanesTrace trace = 2;
+}
+
+message TraceBlockRequest {
+  uint64 block = 1;
+}
+
+message TraceBlockResponse {
+  repeated Trace traces = 1;
 }

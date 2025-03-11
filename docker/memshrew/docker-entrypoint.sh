@@ -13,8 +13,9 @@ RUST_LOG=${LOG_FILTERS:-"none,memshrew=debug"}
 export RUST_LOG=${RUST_LOG:-"debug"}
 
 # Execute memshrew with parameters
-exec memshrew \
+exec memshrew-p2p \
     --daemon-rpc-url "$DAEMON_RPC_ADDR" \
+    --p2p-addr "$P2P_ADDR" \
     --auth "$AUTH" \
     --host "$HOST" \
     --port "$PORT"

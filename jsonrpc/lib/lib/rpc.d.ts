@@ -56,6 +56,9 @@ export declare class AlkanesRpc extends BaseRpc {
         txid: any;
         vout: any;
     }, blockTag?: BlockTag): Promise<any>;
+    traceblock({ block }: {
+        block: number | bigint;
+    }, blockTag?: BlockTag): Promise<any>;
     trace({ txid, vout }: {
         txid: string;
         vout: number;

@@ -28,21 +28,22 @@ async function waitForSync(maxAttempts = 60): Promise<void> {
     const btcHeight = Number((await client.call("getblockcount")).data.result);
     const msHeight = Number(await rpc.height());
     logger.info("btc: " + btcHeight + "|metashrew: " + msHeight);
-    
+
     if (msHeight >= btcHeight) {
       return;
     }
-    
+
     await timeout(1000); // 1 second delay between attempts
   }
-  
+
   throw new Error("Timeout waiting for Metashrew to sync with Bitcoin height");
 }
 
 const AUTH_TOKEN_FACTORY_ID = BigInt(0xffee);
-const TEST_MULTISIG = "bcrt1pys2f8u8yx7nu08txn9kzrstrmlmpvfprdazz9se5qr5rgtuz8htsaz3chd";
+const TEST_MULTISIG =
+  "bcrt1pys2f8u8yx7nu08txn9kzrstrmlmpvfprdazz9se5qr5rgtuz8htsaz3chd";
 
-const ln = (v) => ((logger.info(v)), v);
+const ln = (v) => (logger.info(v), v);
 const timeout = async (n) =>
   await new Promise((resolve) => setTimeout(resolve, n));
 
@@ -62,8 +63,10 @@ const getPrivate = (mnemonic) => {
   const root = bip32.fromSeed(seed, bitcoin.networks.regtest);
   return root.derivePath("m/84'/0'/0'/0/0");
 };
-
 export async function deployAuthToken(): Promise<void> {
+  logger.info("Starting auth token deployment");
+  
+  logger.info("Reading WASM binary file");
   const binary = new Uint8Array(
     Array.from(
       await fs.readFile(
@@ -71,13 +74,16 @@ export async function deployAuthToken(): Promise<void> {
       ),
     ),
   );
+  
+  logger.info("Setting up keys and addresses");
   const privKey = hex.decode(
     "0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
   );
   const faucetPrivate = getPrivate(REGTEST_FAUCET.mnemonic);
   const faucetAddress = getAddress(faucetPrivate);
   const pubKey = secp256k1_schnorr.getPublicKey(privKey);
-  // We need this to enable custom scripts outside
+  
+  logger.info("Preparing reveal payment");
   const customScripts = [envelope.OutOrdinalReveal];
   const payload = {
     body: await gzip(binary, { level: 9 }),
@@ -91,6 +97,8 @@ export async function deployAuthToken(): Promise<void> {
     false,
     customScripts,
   );
+  
+  logger.info("Generating initial blocks");
   const blockHash = await client.call(
     "generatetoaddress",
     200,
@@ -114,6 +122,8 @@ export async function deployAuthToken(): Promise<void> {
     Buffer.from(blockDetails.data.result, "hex"),
   );
   const coinbase = decoded.tx[0];
+  
+  logger.info("Creating funding transaction");
   const fundingTransaction = new btc.Transaction({
     allowLegacyWitnessUtxo: true,
     allowUnknownOutputs: true,
@@ -149,19 +159,24 @@ export async function deployAuthToken(): Promise<void> {
     faucetPrivate.privateKey,
     [btc.SigHash.ALL],
     new Uint8Array(0x20),
-  ); //, undefined, new Uint9Array(32));
+  );
   fundingTransaction.finalize();
 
+  logger.info("Broadcasting funding transaction");
   const fundingTransactionHex = hex.encode(fundingTransaction.extract());
   const sendHex = await client.call(
     "sendrawtransaction",
     fundingTransactionHex,
   );
   await client.generateBlock();
+  logger.info("Funding transaction confirmed:", sendHex.data.result);
+
   const txid = new Uint8Array(
     Array.from(Buffer.from(sendHex.data.result, "hex")),
   );
-  const changeAddr = revealPayment.address; // can be different
+  const changeAddr = revealPayment.address;
+  
+  logger.info("Creating reveal transaction");
   const tx = new btc.Transaction({ customScripts, allowUnknownOutputs: true });
   tx.addInput({
     ...revealPayment,
@@ -187,10 +202,15 @@ export async function deployAuthToken(): Promise<void> {
   });
   tx.sign(privKey, undefined, new Uint8Array(32));
   tx.finalize();
+  
+  logger.info("Broadcasting reveal transaction");
   const txHex = hex.encode(tx.extract());
   const revealTxSend = await client.call("sendrawtransaction", txHex);
   await client.generateBlock();
   const revealTxid = revealTxSend.data.result;
+  logger.info("Reveal transaction confirmed:", revealTxid);
+
+  logger.info("Processing reveal transaction from regtest");
   const revealTransactionFromRegtest = btc.Transaction.fromRaw(
     new Uint8Array(
       Array.from(
@@ -203,13 +223,14 @@ export async function deployAuthToken(): Promise<void> {
     ),
     { allowUnknownOutputs: true },
   );
+  
+  logger.info("Auth token deployment completed successfully");
 }
-export async function deploySynthetic(): Promise<void> {
+async function deploySynthetic(): Promise<void> {
+  logger.info("Starting synthetic deployment");
   const binary = new Uint8Array(
     Array.from(
-      await fs.readFile(
-        path.join(__dirname, "..", "vendor", "fr_btc.wasm"),
-      ),
+      await fs.readFile(path.join(__dirname, "..", "vendor", "fr_btc.wasm")),
     ),
   );
   const privKey = hex.decode(
@@ -218,7 +239,8 @@ export async function deploySynthetic(): Promise<void> {
   const faucetPrivate = getPrivate(REGTEST_FAUCET.mnemonic);
   const faucetAddress = getAddress(faucetPrivate);
   const pubKey = secp256k1_schnorr.getPublicKey(privKey);
-  // We need this to enable custom scripts outside
+
+  logger.info("Setting up reveal payment");
   const customScripts = [envelope.OutOrdinalReveal];
   const payload = {
     body: await gzip(binary, { level: 9 }),
@@ -232,11 +254,9 @@ export async function deploySynthetic(): Promise<void> {
     false,
     customScripts,
   );
-  const blockHash = await client.call(
-    "generatetoaddress",
-    200,
-    faucetAddress,
-  );
+
+  logger.info("Generating initial blocks to faucet address:", faucetAddress);
+  const blockHash = await client.call("generatetoaddress", 200, faucetAddress);
   const blockDetails = await client.call(
     "getblock",
     blockHash.data.result[0],
@@ -262,12 +282,13 @@ export async function deploySynthetic(): Promise<void> {
   const coinbaseTxid = Buffer.from(
     Array.from(Buffer.from(coinbase.txid)).reverse(),
   ).toString("hex");
+
+  logger.info("Creating funding transaction from coinbase:", coinbaseTxid);
   const coinbaseTransaction = btc.Transaction.fromRaw(
     new Uint8Array(
       Array.from(
         Buffer.from(
-          (await client.call("getrawtransaction", coinbaseTxid)).data
-            .result,
+          (await client.call("getrawtransaction", coinbaseTxid)).data.result,
           "hex",
         ),
       ),
@@ -290,19 +311,22 @@ export async function deploySynthetic(): Promise<void> {
     faucetPrivate.privateKey,
     [btc.SigHash.ALL],
     new Uint8Array(0x20),
-  ); //, undefined, new Uint9Array(32));
+  );
   fundingTransaction.finalize();
 
   const fundingTransactionHex = hex.encode(fundingTransaction.extract());
+  logger.info("Broadcasting funding transaction");
   const sendHex = await client.call(
     "sendrawtransaction",
     fundingTransactionHex,
   );
   await client.generateBlock();
+  logger.info("Funding transaction confirmed:", sendHex.data.result);
+
   const txid = new Uint8Array(
     Array.from(Buffer.from(sendHex.data.result, "hex")),
   );
-  const changeAddr = revealPayment.address; // can be different
+  const changeAddr = revealPayment.address;
   const tx = new btc.Transaction({ customScripts, allowUnknownOutputs: true });
   tx.addInput({
     ...revealPayment,
@@ -328,43 +352,58 @@ export async function deploySynthetic(): Promise<void> {
   });
   tx.sign(privKey, undefined, new Uint8Array(32));
   tx.finalize();
+
   const txHex = hex.encode(tx.extract());
+  logger.info("Broadcasting reveal transaction");
   const revealTxSend = await client.call("sendrawtransaction", txHex);
   await client.generateBlock();
   const revealTxid = revealTxSend.data.result;
+  logger.info("Reveal transaction confirmed:", revealTxid);
+
   const revealTransactionFromRegtest = btc.Transaction.fromRaw(
     new Uint8Array(
       Array.from(
         Buffer.from(
-          (await client.call("getrawtransaction", revealTxid as string))
-            .data.result,
+          (await client.call("getrawtransaction", revealTxid as string)).data
+            .result,
           "hex",
         ),
       ),
     ),
     { allowUnknownOutputs: true },
   );
+
+  logger.info("Waiting for sync after reveal");
   await waitForSync();
+
   const revealTxidReversed = Buffer.from(
     Array.from(Buffer.from(revealTxid, "hex")).reverse(),
   ).toString("hex");
-  const balances = (
-    await client.call('alkanes_protorunesbyoutpoint', {
-      protocolTag: '1',
-      txid: '0x' + revealTxidReversed,
-      vout: 0,
-    })
-  );
-  logger.info(balances);
-  const setSignerTransaction = new btc.Transaction({ allowUnknownOutputs: true, customScripts });
+  logger.info("Checking balances for revealed transaction");
+  const balances = await client.call("alkanes_protorunesbyoutpoint", {
+    protocolTag: "1",
+    txid: "0x" + revealTxidReversed,
+    vout: 0,
+  });
+  logger.info("Balance check result:", balances);
+
+  logger.info("Creating signer transaction");
+  const setSignerTransaction = new btc.Transaction({
+    allowUnknownOutputs: true,
+    customScripts,
+  });
   setSignerTransaction.addInput({
     witnessUtxo: (tx as any).outputs[0],
     index: 0,
     txid: revealTxid,
-    sighashType: btc.SigHash.ALL
+    sighashType: btc.SigHash.ALL,
   });
   setSignerTransaction.addOutputAddress(TEST_MULTISIG, 546n, REGTEST_PARAMS);
-  setSignerTransaction.addOutputAddress(faucetAddress, (tx as any).outputs[0].amount - fee - 546n, REGTEST_PARAMS);
+  setSignerTransaction.addOutputAddress(
+    faucetAddress,
+    (tx as any).outputs[0].amount - fee - 546n,
+    REGTEST_PARAMS,
+  );
   setSignerTransaction.addOutput({
     script: encodeRunestoneProtostone({
       protostones: [
@@ -375,34 +414,60 @@ export async function deploySynthetic(): Promise<void> {
           refundPointer: 1,
           calldata: encipher([4n, 0n, 1n, 0n]),
         }),
-      ]
+      ],
     }).encodedRunestone,
-    amount: 0n
+    amount: 0n,
   });
-  setSignerTransaction.sign(faucetPrivate.privateKey, [ btc.SigHash.ALL ], new Uint8Array(32));
+  setSignerTransaction.sign(
+    faucetPrivate.privateKey,
+    [btc.SigHash.ALL],
+    new Uint8Array(32),
+  );
   setSignerTransaction.finalize();
+
   const setSignerTxHex = hex.encode(setSignerTransaction.extract());
-  logger.info(await client.call("sendrawtransaction", setSignerTxHex));
+  logger.info("Broadcasting signer transaction");
+  const signerTxResult = await client.call(
+    "sendrawtransaction",
+    setSignerTxHex,
+  );
+  logger.info("Signer transaction sent:", signerTxResult.data.result);
+
   await client.generateBlock();
+  logger.info("Waiting for sync after signer transaction");
   await waitForSync();
-  logger.info(require('util').inspect(await client.call('alkanes_simulate', {
-    block: '0x',
+
+  logger.info("Running alkanes simulation");
+  const simulationResult = await client.call("alkanes_simulate", {
+    block: "0x",
     txindex: 0,
     height: 0,
-    transaction: '0x',
+    transaction: "0x",
     alkanes: [],
     target: {
-      block: '4',
-      tx: '0'
+      block: "4",
+      tx: "0",
     },
-    inputs: ['100001'],
+    inputs: ["100001"],
     pointer: 0,
     refundPointer: 0,
-    vout: 0
-  }), { colors: true, depth: 15 }));
+    vout: 0,
+  });
+  logger.info(
+    "Simulation completed:",
+    require("util").inspect(simulationResult, { colors: true, depth: 15 }),
+  );
+  logger.info("Synthetic deployment completed successfully");
 }
-
 (async () => {
-  await deployAuthToken();
-  await deploySynthetic();
-})().catch((err) => console.error(err));
+  try {
+    logger.info("Starting deployment process");
+    await deployAuthToken();
+    logger.info("Auth token deployment completed");
+    await deploySynthetic();
+    logger.info("Synthetic deployment completed");
+  } catch (err) {
+    logger.error("Deployment failed:", err);
+    process.exit(1);
+  }
+})();

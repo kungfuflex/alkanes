@@ -74,6 +74,10 @@ export declare function encodeTraceRequest({ txid, vout, }: {
     txid: string;
     vout: number;
 }): string;
+export declare function encodeTraceBlockRequest({ block }: {
+    block: bigint | number;
+}): string;
+export declare function decodeTraceBlockResponse(hex: string): any;
 export declare function decodeTraceResponse(hex: string): any;
 export declare function encodeSimulateRequest({ alkanes, transaction, height, block, inputs, target, txindex, vout, pointer, refundPointer, }: {
     alkanes: AlkaneTransfer[];

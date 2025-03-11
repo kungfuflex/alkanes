@@ -13,10 +13,10 @@ RUN apt-get update && apt-get install -y \
 # Clone specific commit of metashrew
 WORKDIR /build
 RUN git clone https://github.com/sandshrewmetaprotocols/metashrew.git . \
-    && git checkout v8.1.0
+    && git checkout 34eaed247d3912a32db10dbfcb3e0f40f9c5527b
 
 # Build release binary
-RUN cargo build --release --bin memshrew
+RUN cargo build --release --bin memshrew-p2p
 
 # Runtime stage
 FROM debian:bookworm-slim
@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy binary and entrypoint
-COPY --from=builder /build/target/release/memshrew /usr/local/bin/
+COPY --from=builder /build/target/release/memshrew-p2p /usr/local/bin/
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 # Create non-root user

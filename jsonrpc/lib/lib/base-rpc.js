@@ -33,11 +33,47 @@ const outpoint_1 = require("./outpoint");
 const addHexPrefix = (s) => s.substr(0, 2) === '0x' ? s : '0x' + s;
 let id = 0;
 class BaseRpc {
-    constructor({ baseUrl, blockTag }) {
+    constructor({ baseUrl, memshrewUrl, blockTag }) {
         this.baseUrl = baseUrl || 'http://localhost:8080';
+        this.memshrewUrl = memshrewUrl || baseUrl;
         this.blockTag = blockTag || 'latest';
     }
+    async _preview({ method, input }) {
+        const buildResult = await (await fetch(url_1.default.format({
+            ...url_1.default.parse(this.memshrewUrl || this.baseUrl),
+            pathname: '/'
+        }), {})).json();
+        if (buildResult.error) {
+            const err = new Error(buildResult.error.message);
+            err.code = buildResult.error.code;
+            throw err;
+        }
+        if (buildResult.length === 0) {
+            throw Error('no mempool block built by memshrew');
+        }
+        const blockHex = buildResult.result[0];
+        const response = (await (await fetch(url_1.default.format({
+            ...url_1.default.parse(this.baseUrl),
+            pathname: '/'
+        }), {
+            method: 'POST',
+            body: JSON.stringify({
+                id: id++,
+                jsonrpc: '2.0',
+                method: 'metashrew_preview',
+                params: [blockHex, method, input, "latest"]
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        })).json());
+        return addHexPrefix(response.result);
+    }
     async _call({ method, input }, blockTag = "latest") {
+        if (blockTag === "pending") {
+            return await this._preview({ method, input });
+        }
         const response = (await (await fetch(url_1.default.format({
             ...url_1.default.parse(this.baseUrl),
             pathname: '/'
