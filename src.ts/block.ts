@@ -25,7 +25,7 @@ export function parseRunestone(v: string): any {
 
 export function parseRunestoneFromTransaction(tx: Transaction): any {
   const script = bitcoinjs.script.decompile(
-    tx.outs.find((v) => v.value === 0n).script,
+    tx.outs.find((v) => (v.value === 0n || v.value === 0)).script,
   );
   if (!(script[0] === 0x6a && script[1] === 0x5d)) {
     throw Error(`transaction ${tx.getId()} does not contain a Runestone`);
