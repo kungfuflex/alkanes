@@ -21,7 +21,7 @@ A complete environment for alkanes development against a live web application ca
 docker-compose up -d
 ```
 
-This will launch a Bitcoin regtest instance, a keydb backend for a database, a metashrew process, and a metashrew-view process, preloaded with the `alkanes.wasm` binary produced from the Rust crate hosted at [https://github.com/kunguflex/alkanes-rs](https://github.com/kungfuflex/alkane-rs).
+This will launch a Bitcoin regtest instance, a keydb backend for a database, a metashrew process, and a metashrew-view process, preloaded with the `alkanes.wasm` binary produced from the Rust crate hosted at [https://github.com/kungfuflex/alkanes-rs](https://github.com/kungfuflex/alkanes-rs).
 
 ## Usage
 
