@@ -74,6 +74,13 @@ export function leftPadByte(v: string): string {
   return v;
 }
 
+export function rightPadByte(v: string): string {
+  if (v.length % 2) {
+    return v + "0";
+  }
+  return v;
+}
+
 export function leftPad16(v: string): string {
   if (v.length > 16) throw Error("varint in encoding cannot exceed 15 bytes");
   return "0".repeat(32 - v.length) + v;
@@ -191,4 +198,8 @@ export function pack(v: bigint[]): Buffer {
       );
     }),
   );
+}
+
+export function decipherPacked(v: bigint[]): bigint[] {
+  return decipher(Buffer.concat(v.map((v) => Buffer.from(Array.from(Buffer.from(leftPadByte(v.toString(16)), 'hex')).reverse()))));
 }
