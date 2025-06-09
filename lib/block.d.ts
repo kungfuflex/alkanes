@@ -1,6 +1,7 @@
 import { Transaction } from "bitcoinjs-lib";
 export declare function parseTransaction(v: string): any;
 export declare function parseRunestone(v: string): any;
+export declare function parseRunestoneFromOpReturnHex(hex: string): any;
 export declare function parseRunestoneFromTransaction(tx: Transaction): any;
 export declare function parseLeb128Object(list: bigint[]): any;
 export declare function parseProtostones(list: bigint[]): any;

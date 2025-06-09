@@ -23,6 +23,15 @@ export function parseRunestone(v: string): any {
   return parseRunestoneFromTransaction(tx);
 }
 
+export function parseRunestoneFromOpReturnHex(hex: string): any {
+  const script = bitcoinjs.script.decompile(
+    new Uint8Array(Buffer.from(hex, 'hex'))
+  );
+  const payload: any = bytes.decipher(Buffer.concat(script.slice(2) as any));
+  const result = parseLeb128Object(payload);
+  return result;
+}
+
 export function parseRunestoneFromTransaction(tx: Transaction): any {
   const script = bitcoinjs.script.decompile(
     tx.outs.find((v: any) => (v.value === 0n || v.value === 0)).script,
