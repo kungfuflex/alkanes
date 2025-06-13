@@ -5,8 +5,7 @@ const { forEach } = require('lodash');
 
 const rpc = new AlkanesRpc({ baseUrl: 'http://localhost:8091' });
 const prod_rpc = new AlkanesRpc({ baseUrl: 'https://mainnet.sandshrew.io/v2/lasereyes' });
-// Replace 'yourfile.txt' with the path to your text file
-const filePath = '/tmp/txid-diff-fix1.txt';
+const filePath = '~/txid-diff.txt';
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -14,7 +13,7 @@ function sleep(ms) {
 function compareTokenValues(list1, list2, txid) {
     // Create a map for list1, using token name or symbol as key
     const list1Map = new Map(list1.map(item => [item.token.name || item.token.symbol, item.value]));
-    if (list1.length == 0 || list2.length == 0) {
+    if (list1.length == 0 && list2.length == 0) {
         console.log("No balances found, possibly on another outpoint")
     }
     // console.log(list1);

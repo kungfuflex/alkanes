@@ -41,7 +41,7 @@ async function processFile() {
             console.log('File processing completed.');
 
             // Convert the Set to an array and write to a text file
-            const outputFilePath = '/tmp/txid-diff-fix1.txt';
+            const outputFilePath = '~/txid-diff.txt';
             const uniqueSubstringsArray = [...extractedSubstrings];
 
             // Write the unique substrings to the file
