@@ -3,9 +3,9 @@ var { AlkanesRpc } = require("../lib/rpc.js");
 const readline = require('readline');
 const { forEach } = require('lodash');
 
-const rpc = new AlkanesRpc({ baseUrl: 'http://localhost:8091' });
+const rpc = new AlkanesRpc({ baseUrl: 'http://localhost:8090' });
 const prod_rpc = new AlkanesRpc({ baseUrl: 'https://mainnet.sandshrew.io/v2/lasereyes' });
-const filePath = '~/txid-diff.txt';
+const filePath = '/home/ubuntu/txid-diff.txt';
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
