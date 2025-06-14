@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 # Clone specific commit of metashrew
 WORKDIR /build
 RUN git clone https://github.com/sandshrewmetaprotocols/metashrew.git . \
-    && git checkout v8.5.1-rc1
+    && git checkout v8.8.3
 
 # Build release binary
 RUN cargo build --release --bin rockshrew-mono
