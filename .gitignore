@@ -6,3 +6,4 @@
 node_modules
 memory-bank/activeContext.md
 memory-bank/progress.md
+scripts/query-jsonrpc.mjs
