@@ -46,6 +46,30 @@ export class AlkanesRpc extends BaseRpc {
       blockTag
     );
   }
+  async getblock(
+    height: any,
+    blockTag: BlockTag = "latest"
+  ): Promise<string> {
+    return invoke.decodeBlockResponse(await this._call(
+      {
+        method: "getblock",
+        input: invoke.encodeBlockRequest({ height }),
+      },
+      blockTag
+    ));
+  }
+  async sequence(): Promise<bigint> {
+    return BigInt(await this._call({
+      method: "sequence",
+      input: "0x"
+    }));
+  }
+  async blocktracker(): Promise<string> {
+    return await this._call({
+      method: "blocktracker",
+      input: "0x"
+    });
+  }
   async protorunesbyaddress(
     { address, protocolTag }: any,
     blockTag: BlockTag = "latest"

@@ -9,6 +9,7 @@ export declare function toAlkaneTransfer(v: any): {
     value: bigint;
 };
 export declare function toBytecodeRequest({ block, tx }: any): alkanes_protobuf.BytecodeRequest;
+export declare function encodeBlockRequest({ height }: any): alkanes_protobuf.BlockRequest;
 export declare function encodeGetBytecodeRequest(v: any): string;
 export declare function fromCallType(v: number): string;
 export declare function toAlkaneId(v: any): {
@@ -80,6 +81,7 @@ export declare function encodeTraceRequest({ txid, vout, }: {
 export declare function encodeTraceBlockRequest({ block, }: {
     block: bigint | number;
 }): string;
+export declare function decodeBlockResponse(hex: string): any;
 export declare function decodeTraceBlockResponse(hex: string): any;
 export declare function decodeTraceResponse(hex: string): any;
 export declare function encodeSimulateRequest({ alkanes, transaction, height, block, inputs, target, txindex, vout, pointer, refundPointer, }: {

@@ -43,6 +43,24 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
             input: invoke.encodeGetBytecodeRequest({ block, tx }),
         }, blockTag);
     }
+    async getblock(height, blockTag = "latest") {
+        return invoke.decodeBlockResponse(await this._call({
+            method: "getblock",
+            input: invoke.encodeBlockRequest({ height }),
+        }, blockTag));
+    }
+    async sequence() {
+        return BigInt(await this._call({
+            method: "sequence",
+            input: "0x"
+        }));
+    }
+    async blocktracker() {
+        return await this._call({
+            method: "blocktracker",
+            input: "0x"
+        });
+    }
     async protorunesbyaddress({ address, protocolTag }, blockTag = "latest") {
         const buffer = protowallet.encodeProtorunesWalletInput(address, protocolTag);
         const byteString = await this._call({
