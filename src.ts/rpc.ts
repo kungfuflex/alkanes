@@ -58,6 +58,18 @@ export class AlkanesRpc extends BaseRpc {
       blockTag
     ));
   }
+  async sequence(): Promise<bigint> {
+    return BigInt(await this._call({
+      mmethod: "sequence",
+      input: "0x"
+    }));
+  }
+  async blocktracker(): Promise<string> {
+    return await this._call({
+      method: "blocktracker",
+      input: "0x"
+    });
+  }
   async protorunesbyaddress(
     { address, protocolTag }: any,
     blockTag: BlockTag = "latest"

@@ -20,7 +20,7 @@ const alkanesRpc = new AlkanesRpc({
 async function waitForSync(maxAttempts = 15): Promise<void> {
   try {
     for (let i = 0; i < maxAttempts; i++) {
-      const btcHeight = Number((await client.call("getblockcount")).data.result);
+      const btcHeight = Number((await client.call("blocktrackercount")).data.result);
       const msHeight = Number(await rpc.height());
       logger.info("btc: " + btcHeight + "|metashrew: " + msHeight);
       
@@ -40,7 +40,7 @@ async function waitForSync(maxAttempts = 15): Promise<void> {
 }
 
 /**
- * Fetches the block bytes using AlkanesRpc's getblock view function
+ * Fetches the block bytes using AlkanesRpc's blocktracker view function
  * @param height Block height to fetch
  * @returns Block bytes as a hex string or null if there's an error
  */
@@ -52,7 +52,7 @@ async function waitForSync(maxAttempts = 15): Promise<void> {
 async function getBlockBytes(height: number): Promise<string | null> {
   try {
     // First get the block hash at the given height
-    const blockHashResponse = await client.call("getblockhash", height);
+    const blockHashResponse = await client.call("blocktrackerhash", height);
     if (!blockHashResponse.data || !blockHashResponse.data.result) {
       logger.warn(`Failed to get block hash at height ${height}`);
       return null;
@@ -61,12 +61,12 @@ async function getBlockBytes(height: number): Promise<string | null> {
     const blockHash = blockHashResponse.data.result;
     
     // Then get the block data using the hash (as a string)
-    const response = await client.call("getblock", blockHash, 0); // 0 = raw hex format
+    const response = await client.call("blocktracker"); // 0 = raw hex format
     
     if (response && response.data && response.data.result) {
       return response.data.result;
     } else {
-      logger.warn(`getblock function error: ${JSON.stringify(response.data)}`);
+      logger.warn(`blocktracker function error: ${JSON.stringify(response.data)}`);
       return null;
     }
   } catch (error) {
@@ -142,17 +142,17 @@ async function testReorg(): Promise<void> {
     await waitForSync();
     
     // Get the current block count
-    const blockCount = (await client.call("getblockcount")).data.result;
+    const blockCount = (await client.call("blocktrackercount")).data.result;
     logger.info(`Current block count: ${blockCount}`);
     
     // Get the block hash at height blockCount - 3 (we'll reorg from this point)
     const reorgHeight = blockCount - 3;
-    const reorgBlockHash = (await client.call("getblockhash", reorgHeight)).data.result;
+    const reorgBlockHash = (await client.call("blocktrackerhash", reorgHeight)).data.result;
     logger.info(`Will reorg from block at height ${reorgHeight} with hash ${reorgBlockHash}`);
     
     // Get the block data before reorg
     try {
-      const blockBeforeReorg = await client.call("getblock", reorgBlockHash);
+      const blockBeforeReorg = await client.call("blocktracker", reorgBlockHash);
       if (blockBeforeReorg.data && blockBeforeReorg.data.result && blockBeforeReorg.data.result.hash) {
         logger.info(`Block before reorg: ${JSON.stringify(blockBeforeReorg.data.result.hash)}`);
       } else {
@@ -200,12 +200,12 @@ async function testReorg(): Promise<void> {
     await waitForSync();
     
     // Get the new block hash at the same height
-    const newBlockHash = (await client.call("getblockhash", reorgHeight)).data.result;
+    const newBlockHash = (await client.call("blocktrackerhash", reorgHeight)).data.result;
     logger.info(`New block at height ${reorgHeight} has hash ${newBlockHash}`);
     
     // Get the block data after reorg
     try {
-      const blockAfterReorg = await client.call("getblock", newBlockHash);
+      const blockAfterReorg = await client.call("blocktracker", newBlockHash);
       if (blockAfterReorg.data && blockAfterReorg.data.result && blockAfterReorg.data.result.hash) {
         logger.info(`Block after reorg: ${JSON.stringify(blockAfterReorg.data.result.hash)}`);
       } else {
@@ -253,7 +253,7 @@ async function testReorg(): Promise<void> {
         logger.warn("⚠️ Block bytes did not change in the index");
       }
     } else {
-      logger.info("ℹ️ Block bytes comparison skipped (getblock view function not available)");
+      logger.info("ℹ️ Block bytes comparison skipped (blocktracker view function not available)");
     }
     
     // Verify that stateroots are different (primary verification method)

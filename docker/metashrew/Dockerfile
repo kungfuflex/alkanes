@@ -7,16 +7,20 @@ RUN apt-get update && apt-get install -y \
     git \
     pkg-config \
     libclang-dev \
+    clang \
+    llvm \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone specific commit of metashrew
+COPY ./submodules/metashrew /build
+COPY ./submodules/alkanes-rs /alkanes
 WORKDIR /build
-RUN git clone https://github.com/sandshrewmetaprotocols/metashrew .
-RUN git checkout kungfuflex/v9.0.0
 
 # Build release binary
 RUN cargo build --release --bin rockshrew-mono
+WORKDIR /alkanes
+RUN cargo build --release
 
 # Runtime stage
 FROM debian:bookworm-slim
@@ -29,8 +33,8 @@ RUN apt-get update && apt-get install -y \
 
 # Copy binary and entrypoint
 COPY --from=builder /build/target/release/rockshrew-mono /usr/local/bin/
+COPY --from=builder /alkanes/target/wasm32-unknown-unknown/release/alkanes.wasm /metashrew/indexer.wasm
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY vendor/alkanes.wasm /metashrew/indexer.wasm
 
 # Create non-root user
 RUN useradd -r -s /bin/false metashrew \

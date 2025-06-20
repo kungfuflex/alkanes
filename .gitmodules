@@ -1,0 +1,10 @@
+[submodule "docker/metashrew/submodules/metashrew"]
+	path = docker/metashrew/submodules/metashrew
+	url = https://github.com/sandshrewmetaprotocols/metashrew
+[submodule "docker/metashrew/submodules/alkanes-rs"]
+	path = docker/metashrew/submodules/alkanes-rs
+	url = https://github.com/kungfuflex/alkanes-rs
+	branch = kungfuflex/v0.5.2
+[submodule "system/metashrew"]
+	path = system/metashrew
+	url = https://github.com/sandshrewmetaprotocols/metashrew.git
