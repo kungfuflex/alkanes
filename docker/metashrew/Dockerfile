@@ -12,8 +12,8 @@ RUN apt-get update && apt-get install -y \
 
 # Clone specific commit of metashrew
 WORKDIR /build
-RUN git clone https://github.com/sandshrewmetaprotocols/metashrew.git . \
-    && git checkout kungfuflex/v9.0.0
+RUN git clone https://github.com/sandshrewmetaprotocols/metashrew .
+RUN git checkout kungfuflex/v9.0.0
 
 # Build release binary
 RUN cargo build --release --bin rockshrew-mono

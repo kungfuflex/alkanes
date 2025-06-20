@@ -651,6 +651,49 @@ export declare namespace alkanes {
         serializeBinary(): Uint8Array;
         static deserializeBinary(bytes: Uint8Array): TraceBlockRequest;
     }
+    class BlockRequest extends pb_1.Message {
+        #private;
+        constructor(data?: any[] | {
+            height?: number;
+        });
+        get height(): number;
+        set height(value: number);
+        static fromObject(data: {
+            height?: number;
+        }): BlockRequest;
+        toObject(): {
+            height?: number;
+        };
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): BlockRequest;
+        serializeBinary(): Uint8Array;
+        static deserializeBinary(bytes: Uint8Array): BlockRequest;
+    }
+    class BlockResponse extends pb_1.Message {
+        #private;
+        constructor(data?: any[] | {
+            block?: Uint8Array;
+            height?: number;
+        });
+        get block(): Uint8Array;
+        set block(value: Uint8Array);
+        get height(): number;
+        set height(value: number);
+        static fromObject(data: {
+            block?: Uint8Array;
+            height?: number;
+        }): BlockResponse;
+        toObject(): {
+            block?: Uint8Array;
+            height?: number;
+        };
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): BlockResponse;
+        serializeBinary(): Uint8Array;
+        static deserializeBinary(bytes: Uint8Array): BlockResponse;
+    }
     class TraceBlockResponse extends pb_1.Message {
         #private;
         constructor(data?: any[] | {

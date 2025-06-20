@@ -140,6 +140,13 @@ message TraceBlockRequest {
   uint64 block = 1;
 }
 
+message BlockRequest {
+  uint32 height = 1;
+}
+message BlockResponse {
+  bytes block = 1;
+  uint32 height = 2;
+}
 message TraceBlockResponse {
   repeated Trace traces = 1;
 }
