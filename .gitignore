@@ -7,4 +7,7 @@ node_modules
 memory-bank/activeContext.md
 memory-bank/progress.md
 scripts/query-jsonrpc.mjs
-system/
+system/.build_hashes/
+system/build.log
+system/submodules/*/target/
+system/submodules/*/build/

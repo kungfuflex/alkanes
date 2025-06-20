@@ -20,7 +20,7 @@ const alkanesRpc = new AlkanesRpc({
 async function waitForSync(maxAttempts = 15): Promise<void> {
   try {
     for (let i = 0; i < maxAttempts; i++) {
-      const btcHeight = Number((await client.call("blocktrackercount")).data.result);
+      const btcHeight = Number((await client.call("getblockcount")).data.result);
       const msHeight = Number(await rpc.height());
       logger.info("btc: " + btcHeight + "|metashrew: " + msHeight);
       
@@ -142,7 +142,7 @@ async function testReorg(): Promise<void> {
     await waitForSync();
     
     // Get the current block count
-    const blockCount = (await client.call("blocktrackercount")).data.result;
+    const blockCount = (await client.call("getblockcount")).data.result;
     logger.info(`Current block count: ${blockCount}`);
     
     // Get the block hash at height blockCount - 3 (we'll reorg from this point)
