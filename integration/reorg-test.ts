@@ -52,7 +52,7 @@ async function waitForSync(maxAttempts = 15): Promise<void> {
 async function getBlockBytes(height: number): Promise<string | null> {
   try {
     // First get the block hash at the given height
-    const blockHashResponse = await client.call("blocktrackerhash", height);
+    const blockHashResponse = await client.call("getblockhash", height);
     if (!blockHashResponse.data || !blockHashResponse.data.result) {
       logger.warn(`Failed to get block hash at height ${height}`);
       return null;
@@ -61,7 +61,7 @@ async function getBlockBytes(height: number): Promise<string | null> {
     const blockHash = blockHashResponse.data.result;
     
     // Then get the block data using the hash (as a string)
-    const response = await client.call("blocktracker"); // 0 = raw hex format
+    const response = await client.call("alkanes_blocktracker"); // 0 = raw hex format
     
     if (response && response.data && response.data.result) {
       return response.data.result;
@@ -147,12 +147,12 @@ async function testReorg(): Promise<void> {
     
     // Get the block hash at height blockCount - 3 (we'll reorg from this point)
     const reorgHeight = blockCount - 3;
-    const reorgBlockHash = (await client.call("blocktrackerhash", reorgHeight)).data.result;
+    const reorgBlockHash = (await client.call("getblockhash", reorgHeight)).data.result;
     logger.info(`Will reorg from block at height ${reorgHeight} with hash ${reorgBlockHash}`);
     
     // Get the block data before reorg
     try {
-      const blockBeforeReorg = await client.call("blocktracker", reorgBlockHash);
+      const blockBeforeReorg = await client.call("alkanes_blocktracker", reorgBlockHash);
       if (blockBeforeReorg.data && blockBeforeReorg.data.result && blockBeforeReorg.data.result.hash) {
         logger.info(`Block before reorg: ${JSON.stringify(blockBeforeReorg.data.result.hash)}`);
       } else {
@@ -200,12 +200,12 @@ async function testReorg(): Promise<void> {
     await waitForSync();
     
     // Get the new block hash at the same height
-    const newBlockHash = (await client.call("blocktrackerhash", reorgHeight)).data.result;
+    const newBlockHash = (await client.call("getblockhash", reorgHeight)).data.result;
     logger.info(`New block at height ${reorgHeight} has hash ${newBlockHash}`);
     
     // Get the block data after reorg
     try {
-      const blockAfterReorg = await client.call("blocktracker", newBlockHash);
+      const blockAfterReorg = await client.call("alkanes_blocktracker", newBlockHash);
       if (blockAfterReorg.data && blockAfterReorg.data.result && blockAfterReorg.data.result.hash) {
         logger.info(`Block after reorg: ${JSON.stringify(blockAfterReorg.data.result.hash)}`);
       } else {

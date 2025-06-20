@@ -60,7 +60,7 @@ export class AlkanesRpc extends BaseRpc {
   }
   async sequence(): Promise<bigint> {
     return BigInt(await this._call({
-      mmethod: "sequence",
+      method: "sequence",
       input: "0x"
     }));
   }

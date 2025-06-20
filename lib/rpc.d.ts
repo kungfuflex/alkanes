@@ -6,6 +6,8 @@ import { BlockTag } from "./base-rpc";
 export declare class AlkanesRpc extends BaseRpc {
     getbytecode({ block, tx }: any, blockTag?: BlockTag): Promise<string>;
     getblock(height: any, blockTag?: BlockTag): Promise<string>;
+    sequence(): Promise<bigint>;
+    blocktracker(): Promise<string>;
     protorunesbyaddress({ address, protocolTag }: any, blockTag?: BlockTag): Promise<{
         outpoints: OutPoint[];
         balanceSheet: RuneOutput[];
