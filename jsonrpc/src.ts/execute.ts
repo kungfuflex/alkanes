@@ -18,6 +18,7 @@ import {
 } from "./params";
 import { getLogger } from "./logger";
 import { AlkanesRpc } from "./lib/rpc";
+import { getAddressInfo } from "./wallet-balance";
 
 const logger = getLogger();
 export async function executeRPC(req, res) {
@@ -94,6 +95,52 @@ export async function executeRPC(req, res) {
               result: multiResult,
               jsonrpc: "2.0",
             });
+            break;
+
+          case "balances":
+            // Import the wallet balance functionality
+            if (!req.body.params || !req.body.params[0]) {
+              return res.json({
+                jsonrpc: "2.0",
+                error: {
+                  code: -32602,
+                  message: "Invalid params: address is required",
+                },
+                id: req.body.id,
+              });
+            }
+
+            const balanceRequest = req.body.params[0];
+            if (!balanceRequest.address) {
+              return res.json({
+                jsonrpc: "2.0",
+                error: {
+                  code: -32602,
+                  message: "Invalid params: address field is required",
+                },
+                id: req.body.id,
+              });
+            }
+
+            try {
+              const addressInfo = await getAddressInfo(balanceRequest);
+              res.json({
+                id: req.body.id,
+                result: addressInfo,
+                jsonrpc: "2.0",
+              });
+            } catch (error) {
+              logger.error("Error in sandshrew_balances:", error);
+              res.json({
+                jsonrpc: "2.0",
+                error: {
+                  code: -32603,
+                  message: error.message || "Internal error fetching balances",
+                  stack: error.stack,
+                },
+                id: req.body.id,
+              });
+            }
             break;
         }
         break;

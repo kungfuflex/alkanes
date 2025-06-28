@@ -57,6 +57,14 @@ export function toBytecodeRequest({
   });
 }
 
+export function encodeBlockRequest({
+  height
+}: any): alkanes_protobuf.BlockRequest {
+  return new alkanes_protobuf.BlockRequest({
+    height
+  });
+}
+
 export function encodeGetBytecodeRequest(v) {
   const id = toBytecodeRequest(v);
   return addHexPrefix(Buffer.from(id.serializeBinary()).toString('hex'));
@@ -171,6 +179,11 @@ export function encodeTraceBlockRequest({
   );
 }
 
+export function decodeBlockResponse(hex: string): any {
+  return addHexPrefix(Buffer.from(alkanes_protobuf.BlockResponse.deserializeBinary(
+    Buffer.from(stripHexPrefix(hex), "hex")
+  ).block).toString('hex'));
+}
 export function decodeTraceBlockResponse(hex: string): any {
   return alkanes_protobuf.TraceBlockResponse.deserializeBinary(
     Buffer.from(stripHexPrefix(hex), "hex")

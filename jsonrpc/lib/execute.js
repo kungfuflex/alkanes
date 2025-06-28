@@ -10,6 +10,7 @@ const utils_1 = require("./utils");
 const params_1 = require("./params");
 const logger_1 = require("./logger");
 const rpc_1 = require("./lib/rpc");
+const wallet_balance_1 = require("./wallet-balance");
 const logger = (0, logger_1.getLogger)();
 async function executeRPC(req, res) {
     try {
@@ -71,6 +72,50 @@ async function executeRPC(req, res) {
                             result: multiResult,
                             jsonrpc: "2.0",
                         });
+                        break;
+                    case "balances":
+                        // Import the wallet balance functionality
+                        if (!req.body.params || !req.body.params[0]) {
+                            return res.json({
+                                jsonrpc: "2.0",
+                                error: {
+                                    code: -32602,
+                                    message: "Invalid params: address is required",
+                                },
+                                id: req.body.id,
+                            });
+                        }
+                        const balanceRequest = req.body.params[0];
+                        if (!balanceRequest.address) {
+                            return res.json({
+                                jsonrpc: "2.0",
+                                error: {
+                                    code: -32602,
+                                    message: "Invalid params: address field is required",
+                                },
+                                id: req.body.id,
+                            });
+                        }
+                        try {
+                            const addressInfo = await (0, wallet_balance_1.getAddressInfo)(balanceRequest);
+                            res.json({
+                                id: req.body.id,
+                                result: addressInfo,
+                                jsonrpc: "2.0",
+                            });
+                        }
+                        catch (error) {
+                            logger.error("Error in sandshrew_balances:", error);
+                            res.json({
+                                jsonrpc: "2.0",
+                                error: {
+                                    code: -32603,
+                                    message: error.message || "Internal error fetching balances",
+                                    stack: error.stack,
+                                },
+                                id: req.body.id,
+                            });
+                        }
                         break;
                 }
                 break;

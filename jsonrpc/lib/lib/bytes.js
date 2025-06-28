@@ -5,6 +5,7 @@ exports.toProtobufAlkaneTransfer = toProtobufAlkaneTransfer;
 exports.unpack = unpack;
 exports.leftPad15 = leftPad15;
 exports.leftPadByte = leftPadByte;
+exports.rightPadByte = rightPadByte;
 exports.leftPad16 = leftPad16;
 exports.leftPad8 = leftPad8;
 exports.toUint128 = toUint128;
@@ -17,6 +18,7 @@ exports.decipher = decipher;
 exports.decodeVarInt = decodeVarInt;
 exports.tryDecodeVarInt = tryDecodeVarInt;
 exports.pack = pack;
+exports.decipherPacked = decipherPacked;
 const seekbuffer_js_1 = require("./seekbuffer.js");
 const alkanes_1 = require("./proto/alkanes");
 function toProtobufAlkaneTransfer(v) {
@@ -47,6 +49,12 @@ function leftPad15(v) {
 function leftPadByte(v) {
     if (v.length % 2) {
         return "0" + v;
+    }
+    return v;
+}
+function rightPadByte(v) {
+    if (v.length % 2) {
+        return v + "0";
     }
     return v;
 }
@@ -135,5 +143,8 @@ function pack(v) {
     return Buffer.concat(v.map((segment) => {
         return Buffer.from(leftPad15(Buffer.from(Array.from(Buffer.from(leftPadByte(segment.toString(16)), "hex")).reverse()).toString("hex")), "hex");
     }));
+}
+function decipherPacked(v) {
+    return decipher(Buffer.concat(v.map((v) => Buffer.from(Array.from(Buffer.from(leftPadByte(v.toString(16)), 'hex')).reverse()))));
 }
 //# sourceMappingURL=bytes.js.map

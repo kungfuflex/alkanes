@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatKey = formatKey;
 exports.toAlkaneTransfer = toAlkaneTransfer;
 exports.toBytecodeRequest = toBytecodeRequest;
+exports.encodeBlockRequest = encodeBlockRequest;
 exports.encodeGetBytecodeRequest = encodeGetBytecodeRequest;
 exports.fromCallType = fromCallType;
 exports.toAlkaneId = toAlkaneId;
@@ -12,6 +13,7 @@ exports.toResponse = toResponse;
 exports.toEvent = toEvent;
 exports.encodeTraceRequest = encodeTraceRequest;
 exports.encodeTraceBlockRequest = encodeTraceBlockRequest;
+exports.decodeBlockResponse = decodeBlockResponse;
 exports.decodeTraceBlockResponse = decodeTraceBlockResponse;
 exports.decodeTraceResponse = decodeTraceResponse;
 exports.encodeSimulateRequest = encodeSimulateRequest;
@@ -58,6 +60,11 @@ function toBytecodeRequest({ block, tx }) {
             block: (0, bytes_1.toUint128)(block),
             tx: (0, bytes_1.toUint128)(tx),
         })
+    });
+}
+function encodeBlockRequest({ height }) {
+    return new alkanes_1.alkanes.BlockRequest({
+        height
     });
 }
 function encodeGetBytecodeRequest(v) {
@@ -149,6 +156,9 @@ function encodeTraceBlockRequest({ block, }) {
     };
     return ("0x" +
         Buffer.from(new alkanes_1.alkanes.TraceBlockRequest(input).serializeBinary()).toString("hex"));
+}
+function decodeBlockResponse(hex) {
+    return (0, utils_1.addHexPrefix)(Buffer.from(alkanes_1.alkanes.BlockResponse.deserializeBinary(Buffer.from((0, utils_1.stripHexPrefix)(hex), "hex")).block).toString('hex'));
 }
 function decodeTraceBlockResponse(hex) {
     return alkanes_1.alkanes.TraceBlockResponse.deserializeBinary(Buffer.from((0, utils_1.stripHexPrefix)(hex), "hex")).traces.map(({ outpoint, trace }) => {
