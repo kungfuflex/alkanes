@@ -44,6 +44,7 @@
     "@protobuf-ts/runtime": "^2.9.4",
     "@scure/base": "~1.1.5",
     "@scure/btc-signer": "^1.4.0",
+    "axios": "^1.10.0",
     "binaryen": "^118.0.0",
     "bip32": "^5.0.0-rc.0",
     "bip39": "^3.1.0",

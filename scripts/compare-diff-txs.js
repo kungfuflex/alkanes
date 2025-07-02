@@ -2,49 +2,142 @@ const fs = require('fs');
 var { AlkanesRpc } = require("../lib/rpc.js");
 const readline = require('readline');
 const { forEach } = require('lodash');
+const axios = require('axios');
 
-const rpc = new AlkanesRpc({ baseUrl: 'http://localhost:8090' });
-const prod_rpc = new AlkanesRpc({ baseUrl: 'https://mainnet.sandshrew.io/v2/lasereyes' });
+const rpc = new AlkanesRpc({ baseUrl: 'https://filler-season-apathy.sandshrew.io:8443' });
+const prod_rpc = new AlkanesRpc({ baseUrl: 'https://mainnet.sandshrew.io/v2/d6aebfed1769128379aca7d215f0b689' });
 const filePath = '/home/ubuntu/txid-diff.txt';
+// const filePath = '/home/ubuntu/txid-diff-btree.txt';
+// const filePath = '/home/ubuntu/txid-diff-reorg.txt';
+
+// run with `node scripts/compare-diff-txs.js 1>log.txt 2> >(tee error.txt)`
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 // Function to compare two lists
-function compareTokenValues(list1, list2, txid) {
-    // Create a map for list1, using token name or symbol as key
-    const list1Map = new Map(list1.map(item => [item.token.name || item.token.symbol, item.value]));
-    if (list1.length == 0 && list2.length == 0) {
-        console.log("No balances found, possibly on another outpoint")
-    }
-    // console.log(list1);
-    // console.log(list2);
-    // Iterate over list2 and compare values
-    list2.forEach(item => {
-        const key = item.token.name || item.token.symbol;
-        if (list1Map.has(key)) {
-            if (list1Map.get(key) !== item.value) {
-                console.log(`Mismatch found for token: ${key}`);
-                console.log(`Value in list1: ${list1Map.get(key)} | Value in list2: ${item.value}`);
-                if (item.value > list1Map.get(key)) {
-                    console.error(`OLD INDEXER (${item.value}) HAS MORE THAN NEW INDEXER (${list1Map.get(key)}): ${txid}`)
-                }
-            }
-        } else {
-            console.log(`Token ${key} found in list2 but not in list1.`);
-        }
-    });
+const bigIntReplacer = (key, value) =>
+    typeof value === 'bigint' ? value.toString() : value;
 
-    // Check if any tokens from list1 are missing in list2
-    list1.forEach(item => {
-        const key = item.token.name || item.token.symbol;
-        if (!list2.some(item2 => item2.token.name === key || item2.token.symbol === key)) {
-            console.log(`Token ${key} found in list1 but not in list2.`);
+function compareTokenValues(list1, list2, txid) {
+    if (list1.length === 0 && list2.length === 0) {
+        console.log(`${txid}: No balances found, possibly on another outpoint`);
+        return;
+    }
+
+    const groupAndSort = (list) => {
+        const grouped = new Map();
+        for (const item of list) {
+            const id = JSON.stringify(item.token.id, bigIntReplacer);
+            if (!grouped.has(id)) {
+                grouped.set(id, []);
+            }
+            grouped.get(id).push(item.value);
         }
-    });
+
+        for (const id of grouped.keys()) {
+            grouped.get(id).sort((a, b) => {
+                try {
+                    const valA = BigInt(a);
+                    const valB = BigInt(b);
+                    if (valA < valB) return -1;
+                    if (valA > valB) return 1;
+                    return 0;
+                } catch (e) {
+                    if (a < b) return -1;
+                    if (a > b) return 1;
+                    return 0;
+                }
+            });
+        }
+        return grouped;
+    };
+
+    const grouped1 = groupAndSort(list1);
+    const grouped2 = groupAndSort(list2);
+
+    let mismatchFound = false;
+
+    for (const [idStr, values1] of grouped1.entries()) {
+        const id = JSON.parse(idStr);
+        if (!grouped2.has(idStr)) {
+            console.error(`Mismatch for txid: ${txid}. Token with id ${idStr} found in new indexer but not in prod.`);
+            mismatchFound = true;
+            continue;
+        }
+
+        const values2 = grouped2.get(idStr);
+        let i = 0;
+        let j = 0;
+        let tokenMismatchFound = false;
+
+        const logMismatchHeader = () => {
+            if (!tokenMismatchFound) {
+                console.error(`Mismatch for txid: ${txid}, token id: ${JSON.stringify(id, bigIntReplacer)}`);
+                tokenMismatchFound = true;
+                mismatchFound = true;
+            }
+        };
+
+        while (i < values1.length && j < values2.length) {
+            const val1 = BigInt(values1[i]);
+            const val2 = BigInt(values2[j]);
+
+            if (val1 < val2) {
+                logMismatchHeader();
+                console.error(`  Extra value in new indexer: ${values1[i]}`);
+                i++;
+            } else if (val2 < val1) {
+                logMismatchHeader();
+                console.error(`  Extra value in prod indexer: ${values2[j]}`);
+                j++;
+            } else {
+                i++;
+                j++;
+            }
+        }
+
+        while (i < values1.length) {
+            logMismatchHeader();
+            console.error(`  Extra value in new indexer: ${values1[i]}`);
+            i++;
+        }
+
+        while (j < values2.length) {
+            logMismatchHeader();
+            console.error(`  Extra value in prod indexer: ${values2[j]}`);
+            j++;
+        }
+    }
+
+    for (const idStr of grouped2.keys()) {
+        if (!grouped1.has(idStr)) {
+            console.error(`Mismatch for txid: ${txid}. Token with id ${idStr} found in prod indexer but not in new.`);
+            mismatchFound = true;
+        }
+    }
 }
 async function processLine(line) {
-    console.log(`processing ${line}`);
+    // console.log(`processing ${line}`);
     try {
+        const reversedTxid = Buffer.from(line, 'hex').reverse().toString('hex');
+        let isSpent = false;
+        try {
+            const { data } = await axios.get(`https://blockstream.info/api/tx/${reversedTxid}/outspend/0`);
+            if (data.spent) {
+                isSpent = true;
+            }
+        } catch (e) {
+            if (e.response && e.response.status !== 404) {
+                console.error(`Error checking outpoint for ${line}:`, e.message);
+                return;
+            }
+        }
+
+        if (isSpent) {
+            console.log(`Skipping spent outpoint: ${line}`);
+            return;
+        }
+
         const balance = await rpc.protorunesbyoutpoint({
             txid: line,
             vout: 0,
@@ -58,7 +151,7 @@ async function processLine(line) {
         compareTokenValues(balance, prod_balance, line);
         await sleep(5);
     } catch (err) {
-        console.error('Error processing line:', err);
+        console.error(`Error processing line ${line}:`, err.message);
     }
 }
 
