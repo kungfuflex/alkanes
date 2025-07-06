@@ -12,11 +12,10 @@ RUN apt-get update && apt-get install -y \
 
 # Clone specific commit of metashrew
 WORKDIR /build
-RUN git clone https://github.com/sandshrewmetaprotocols/metashrew.git . \
-    && git checkout kungfuflex/memshrew-store
+RUN git clone https://github.com/sandshrewmetaprotocols/metashrew.git . -b v9.0.1-alpha.1
 
 # Build release binary
-RUN cargo build --release --bin memshrew-p2p
+RUN cargo build --release -p memshrew-p2p
 
 # Runtime stage
 FROM debian:bookworm-slim
