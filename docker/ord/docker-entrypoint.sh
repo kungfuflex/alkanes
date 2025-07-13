@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 export _CHAIN=${CHAIN:-mainnet}
 export _RPCUSER=${RPCUSER:-bitcoinrpc}
 export _RPCPASSWORD=${RPCPASSWORD:-bitcoinrpc}
@@ -11,4 +13,12 @@ do
   mkdir -p /bitcoin/${i}
   echo "${_RPCUSER}:${_RPCPASSWORD}" > /bitcoin/${i}/.cookie
 done
-ord --index-transactions --index-addresses --index-sats --index-runes --chain $_CHAIN --bitcoin-rpc-url ${DAEMON_RPC_ADDR} --bitcoin-rpc-username $_RPCUSER --bitcoin-rpc-password bitcoinrpc --bitcoin-data-dir /bitcoin server --http-port $_PORT
+
+until curl -s -u "${_RPCUSER}:${_RPCPASSWORD}" --data-binary '{"jsonrpc": "1.0", "id": "curltest", "method": "getblockcount", "params": []}' -H 'content-type: text/plain;' "http://${_DAEMON_RPC_ADDR}/" | jq -e '.result' > /dev/null; do
+  >&2 echo "Bitcoind is unavailable - sleeping"
+  sleep 0.5
+done
+
+>&2 echo "Bitcoind is up - executing command"
+
+ord --index-transactions --index-addresses --index-sats --index-runes --chain $_CHAIN --bitcoin-rpc-url ${_DAEMON_RPC_ADDR} --bitcoin-rpc-username $_RPCUSER --bitcoin-rpc-password $_RPCPASSWORD --bitcoin-data-dir /bitcoin server --http-port $_PORT
