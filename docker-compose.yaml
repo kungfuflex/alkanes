@@ -13,16 +13,20 @@ services:
       - bitcoin-data:/root/.bitcoin
     command:
       ["-txindex", "-regtest=1", "-printtoconsole", "-rpcallowip=0.0.0.0/0", "-rpcbind=0.0.0.0", "-rpcuser=bitcoinrpc", "-rpcpassword=bitcoinrpc"]
+    ports:
+      - "18444:18444"
     restart: unless-stopped
   metashrew:
     build:
       dockerfile: Dockerfile
       context: ./docker/metashrew
     image: rockshrew:alkanes
+    depends_on:
+      - bitcoind
     volumes:
       - metashrew-data:/data
     environment:
-      DAEMON_RPC_ADDR: http://bitcoind:18443
+      DAEMON_RPC_ADDR: http://bitcoind:18444
       AUTH: bitcoinrpc:bitcoinrpc
       DB_PATH: /data
       LOG_FILTERS: none,rockshrew=debug
@@ -34,8 +38,10 @@ services:
       dockerfile: Dockerfile
       context: ./docker/memshrew
     image: memshrew:alkanes
+    depends_on:
+      - bitcoind
     environment:
-      DAEMON_RPC_ADDR: http://bitcoind:18443
+      DAEMON_RPC_ADDR: http://bitcoind:18444
       P2P_ADDR: bitcoind:18444
       AUTH: bitcoinrpc:bitcoinrpc
       LOG_FILTERS: none,memshrew=debug
@@ -47,11 +53,16 @@ services:
       dockerfile: Dockerfile
       context: ./jsonrpc
     image: jsonrpc:alkanes
+    depends_on:
+      - bitcoind
+      - metashrew
+      - ord
+      - esplora
     environment:
       HOST: 0.0.0.0
       RPCUSER: bitcoinrpc
       RPCPASSWORD: bitcoinrpc
-      DAEMON_RPC_ADDR: bitcoind:18443
+      DAEMON_RPC_ADDR: bitcoind:18444
       ORD_HOST: ord
       ORD_PORT: 8090
       ESPLORA_HOST: esplora
@@ -66,24 +77,28 @@ services:
       dockerfile: Dockerfile
       context: ./docker/ord
     image: ord:alkanes
+    depends_on:
+      - bitcoind
     environment:
       CHAIN: regtest
       RPCUSER: bitcoinrpc
       RPCPASSWORD: bitcoinrpc
       PORT: 8090
-      DAEMON_RPC_ADDR: bitcoind:18443
+      DAEMON_RPC_ADDR: bitcoind:18444
     restart: unless-stopped
   esplora:
     build:
       dockerfile: Dockerfile
       context: ./docker/electrs
     image: esplora:alkanes
+    depends_on:
+      - bitcoind
     volumes:
       - bitcoin-data:/data/bitcoin
     environment:
       ELECTRS_AUTH: bitcoinrpc:bitcoinrpc
       ELECTRS_NETWORK: regtest
-      ELECTRS_DAEMON_RPC_ADDR: bitcoind:18443
+      ELECTRS_DAEMON_RPC_ADDR: bitcoind:18444
       ELECTRS_HTTP_ADDR: 0.0.0.0:50010
       ELECTRS_DB_DIR: /data/electrs
       ELECTRS_DAEMON_DIR: /data/bitcoin
