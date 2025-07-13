@@ -1,4 +1,3 @@
-version: "3.3"
 volumes:
   bitcoin-data:
   metashrew-data:
@@ -18,8 +17,8 @@ services:
     restart: unless-stopped
   metashrew:
     build:
-      dockerfile: Dockerfile
-      context: ./docker/metashrew
+      dockerfile: ./docker/metashrew/Dockerfile
+      context: .
     image: rockshrew:alkanes
     depends_on:
       - bitcoind

@@ -1,0 +1,21 @@
+services:
+  metashrew-mainnet:
+    build:
+      dockerfile: ./docker/metashrew/Dockerfile
+      context: .
+      args:
+        - ALKANES_FEATURES=--features mainnet
+    image: rockshrew:alkanes-mainnet
+    depends_on:
+      - bitcoind
+    volumes:
+      - metashrew-data:/data
+    environment:
+      DAEMON_RPC_ADDR: http://bitcoind:18443
+      AUTH: bitcoinrpc:bitcoinrpc
+      DB_PATH: /data
+      LOG_FILTERS: none,rockshrew=debug
+      HOST: 0.0.0.0
+      PORT: 8080
+    restart: unless-stopped
+    command: ["--start-block", "880000"]

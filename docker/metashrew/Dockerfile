@@ -8,13 +8,19 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     libclang-dev \
     libssl-dev \
+    clang \
     && rm -rf /var/lib/apt/lists/*
 
-# Clone specific commit of metashrew
-WORKDIR /build
-RUN git clone https://github.com/sandshrewmetaprotocols/metashrew -b v9.0.1-alpha.1 .
+ARG ALKANES_FEATURES=""
 
-# Build release binary
+# Build alkanes.wasm in an isolated directory
+WORKDIR /alkanes-build
+COPY submodules/alkanes-rs /alkanes-build
+RUN cargo build --release -p alkanes $ALKANES_FEATURES
+
+# Build rockshrew-mono
+WORKDIR /build
+COPY submodules/metashrew /build
 RUN cargo build --release -p rockshrew-mono
 
 # Runtime stage
@@ -28,12 +34,12 @@ RUN apt-get update && apt-get install -y \
 
 # Copy binary and entrypoint
 COPY --from=builder /build/target/release/rockshrew-mono /usr/local/bin/
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-COPY vendor/alkanes.wasm /metashrew/indexer.wasm
+COPY docker/metashrew/docker-entrypoint.sh /docker-entrypoint.sh
+COPY --from=builder /alkanes-build/target/wasm32-unknown-unknown/release/alkanes.wasm /metashrew/indexer.wasm
 
 # Create non-root user
 RUN useradd -r -s /bin/false metashrew \
-    && mkdir -p /data \
+    && mkdir -p /data /metashrew \
     && chown metashrew:metashrew /data /metashrew
 
 USER metashrew

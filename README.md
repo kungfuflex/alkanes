@@ -23,6 +23,40 @@ docker-compose up -d
 
 This will launch a Bitcoin regtest instance, a keydb backend for a database, a metashrew process, and a metashrew-view process, preloaded with the `alkanes.wasm` binary produced from the Rust crate hosted at [https://github.com/kunguflex/alkanes-rs](https://github.com/kungfuflex/alkane-rs).
 
+## Building with Docker
+
+The project is configured to run in different environments using separate Docker Compose files.
+
+### Regtest (Default)
+
+The `regtest` environment is the default. To build and run it, use the following command:
+
+```sh
+docker-compose up -d --build
+```
+
+This will start all the necessary services for local development and testing.
+
+### Mainnet
+
+To run the `mainnet` environment, use the `mainnet-compose.yaml` file:
+
+```sh
+docker-compose -f mainnet-compose.yaml up -d --build
+```
+
+This will start the `metashrew-mainnet` service, configured to connect to the main Bitcoin network.
+
+### Signet
+
+To run the `signet` environment, use the `signet-compose.yaml` file:
+
+```sh
+docker-compose -f signet-compose.yaml up -d --build
+```
+
+This will start the `metashrew-signet` service, configured to connect to the Bitcoin signet network.
+
 ## Usage
 
 A complete example of metaprotocol usage is demonstrated in the sources within `integration/`

@@ -1,0 +1,9 @@
+[submodule "submodules/metashrew"]
+	path = submodules/metashrew
+	url = https://github.com/sandshrewmetaprotocols/metashrew
+[submodule "submodules/alkanes"]
+	path = submodules/alkanes
+	url = https://github.com/kungfuflex/alkanes
+[submodule "submodules/alkanes-rs"]
+	path = submodules/alkanes-rs
+	url = https://github.com/kungfuflex/alkanes-rs
