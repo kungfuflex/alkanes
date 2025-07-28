@@ -12,8 +12,6 @@ services:
       - bitcoin-data:/root/.bitcoin
     command:
       ["-txindex", "-regtest=1", "-printtoconsole", "-rpcallowip=0.0.0.0/0", "-rpcbind=0.0.0.0", "-rpcuser=bitcoinrpc", "-rpcpassword=bitcoinrpc"]
-    ports:
-      - "18443:18443"
     restart: unless-stopped
   metashrew:
     build:

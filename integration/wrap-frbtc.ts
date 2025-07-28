@@ -29,7 +29,7 @@ const rpc: any = shim.rpc;
 const logger = getLogger("alkanes:wrap-frbtc");
 const AUTH_TOKEN_FACTORY_ID = BigInt(0xffee);
 const TEST_MULTISIG =
-  "bcrt1pys2f8u8yx7nu08txn9kzrstrmlmpvfprdazz9se5qr5rgtuz8htsaz3chd";
+  "bcrt1pw6kam0krr8ww6lyghdalh5yl5ez69sxhapz934y84tmukhjkk6gqcnun8q"
 
 const timeout = async (n) =>
   await new Promise((resolve) => setTimeout(resolve, n));
@@ -142,7 +142,7 @@ export async function wrapBTC() {
         protocolTag: 1n,
         edicts: [{
           id: {
-            block: 4n,
+            block: 32n,
             tx: 0n
           },
           amount: 100000n,
@@ -150,7 +150,7 @@ export async function wrapBTC() {
         }],
         pointer: 1,
         refundPointer: 1,
-        calldata: encipher([4n, 0n, 77n]),
+        calldata: encipher([32n, 0n, 77n]),
       }),
     ],
   }).encodedRunestone;
@@ -238,7 +238,7 @@ export async function wrapBTC() {
         edicts: [],
         pointer: 0,
         refundPointer: 0,
-        calldata: encipher([4n, 0n, 78n, 1n]),
+        calldata: encipher([32n, 0n, 78n, 1n]),
       }),
     ],
   }).encodedRunestone;
@@ -272,10 +272,10 @@ export async function wrapBTC() {
       height: i,
       txindex: 0,
       target: {
-        block: "4",
+        block: "32",
         tx: "0",
       },
-      inputs: ["1001"],
+      inputs: ["101"],
       pointer: 0,
       refundPointer: 0,
       vout: 0,
