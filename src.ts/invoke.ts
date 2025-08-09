@@ -251,7 +251,7 @@ export function encodeSimulateRequest({
 class ExecutionStatus {
   static SUCCESS: number = 0;
   static REVERT: number = 1;
-  constructor() {}
+  constructor() { }
 }
 
 export type ExecutionResult = {
@@ -283,8 +283,8 @@ export function decodeSimulateResponse(
     status: ExecutionStatus.SUCCESS,
     gasUsed: res.gas_used,
     execution: {
-      alkanes: res.execution.alkanes,
-      storage: res.execution.storage,
+      alkanes: res.execution.alkanes.map(toAlkaneTransfer),
+      storage: res.execution.storage.map(toStorageSlot),
       error: null,
       data: "0x" + Buffer.from(res.execution.data).toString("hex"),
     },
