@@ -88,11 +88,11 @@ export declare class AlkanesRpc extends BaseRpc {
         refundPointer: number;
         edicts: ProtoruneEdict[];
     }): Promise<any>;
-    alkane_inventory({ block, tx }: {
+    getinventory({ block, tx }: {
         block: bigint;
         tx: bigint;
     }, blockTag?: BlockTag): Promise<import("./bytes").AlkaneTransfer[]>;
-    alkane_storage_at({ id, path }: {
+    getstorageat({ id, path }: {
         id: AlkaneId;
         path: string;
     }, blockTag?: BlockTag): Promise<string>;

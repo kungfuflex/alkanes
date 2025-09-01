@@ -384,14 +384,14 @@ export class AlkanesRpc extends BaseRpc {
       protostones: [protostone],
     }).encodedRunestone;
   }
-  async alkane_inventory(
+  async getinventory(
     { block, tx }: { block: bigint; tx: bigint },
     blockTag: BlockTag = "latest"
   ) {
     const payload = invoke.encodeAlkaneInventoryRequest(block, tx);
     const response = await this._call(
       {
-        method: "alkane_balance_sheet",
+        method: "getinventory",
         input: payload,
       },
       blockTag
@@ -400,14 +400,14 @@ export class AlkanesRpc extends BaseRpc {
     return decodedResponse;
   }
 
-  async alkane_storage_at(
+  async getstorageat(
     { id, path }: { id: AlkaneId; path: string },
     blockTag: BlockTag = "latest"
   ) {
     const payload = invoke.encodeAlkaneStorageRequest({ id, path });
     const response = await this._call(
       {
-        method: "alkane_storage_at",
+        method: "getstorageat",
         input: payload,
       },
       blockTag
