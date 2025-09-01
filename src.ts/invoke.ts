@@ -329,3 +329,58 @@ export function decodeMetaResponse(response: string): any {
     return null;
   }
 }
+
+export function encodeAlkaneInventoryRequest(
+  block: bigint,
+  tx: bigint): string {
+  const input = {
+    id: new alkanes_protobuf.AlkaneId({
+      block: toUint128(block),
+      tx: toUint128(tx),
+    }),
+  };
+  return (
+    "0x" +
+    Buffer.from(
+      new alkanes_protobuf.AlkaneInventoryRequest(input).serializeBinary()
+    ).toString("hex")
+  );
+}
+
+export function decodeAlkaneInventoryResponse(
+  hex: string
+): AlkaneTransfer[] {
+  const res = alkanes_protobuf.AlkaneInventoryResponse.deserializeBinary(
+    Buffer.from(stripHexPrefix(hex), "hex")
+  );
+  return res.alkanes.map(toAlkaneTransfer);
+}
+
+export function encodeAlkaneStorageRequest({
+  id,
+  path,
+}: {
+  id: AlkaneId;
+  path: string;
+}): string {
+  const input = {
+    id: new alkanes_protobuf.AlkaneId({
+      block: toUint128(id.block),
+      tx: toUint128(id.tx),
+    }),
+    path,
+  };
+  return (
+    "0x" +
+    Buffer.from(
+      new alkanes_protobuf.AlkaneStorageRequest(input).serializeBinary()
+    ).toString("hex")
+  );
+}
+
+export function decodeAlkaneStorageResponse(hex: string): string {
+  const res = alkanes_protobuf.AlkaneStorageResponse.deserializeBinary(
+    Buffer.from(stripHexPrefix(hex), "hex")
+  );
+  return "0x" + Buffer.from(res.value).toString("hex");
+}

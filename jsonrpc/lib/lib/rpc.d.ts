@@ -2,6 +2,7 @@ import { OutPoint, RuneOutput } from "./outpoint";
 import { BaseRpc } from "./base-rpc";
 import { AlkaneTransfer } from "./alkane";
 import { ProtoruneEdict } from "./protorune/protoruneedict";
+import { AlkaneId } from "./bytes";
 import { BlockTag } from "./base-rpc";
 export declare class AlkanesRpc extends BaseRpc {
     getbytecode({ block, tx }: any, blockTag?: BlockTag): Promise<string>;
@@ -87,4 +88,12 @@ export declare class AlkanesRpc extends BaseRpc {
         refundPointer: number;
         edicts: ProtoruneEdict[];
     }): Promise<any>;
+    getinventory({ block, tx }: {
+        block: bigint;
+        tx: bigint;
+    }, blockTag?: BlockTag): Promise<import("./bytes").AlkaneTransfer[]>;
+    getstorageat({ id, path }: {
+        id: AlkaneId;
+        path: string;
+    }, blockTag?: BlockTag): Promise<string>;
 }

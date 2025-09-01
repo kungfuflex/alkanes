@@ -1,12 +1,8 @@
 syntax = "proto3";
 package alkanes;
 message uint128 {
-  uint64 lo = 1 [jstype = JS_STRING];
-  uint64 hi = 2 [jstype = JS_STRING];
-}
-
-message BytecodeRequest {
-  AlkaneId id = 1;
+  uint64 lo = 1;
+  uint64 hi = 2;
 }
 
 message AlkaneId {
@@ -17,6 +13,10 @@ message AlkaneId {
 message AlkaneTransfer {
   AlkaneId id = 1;
   uint128 value = 2;
+}
+
+message MultiSimulateRequest {
+    repeated MessageContextParcel parcels = 1;
 }
 
 message MessageContextParcel {
@@ -109,7 +109,16 @@ message SimulateResponse {
   string error = 3;
 }
 
+message MultiSimulateResponse {
+    repeated SimulateResponse responses = 1;
+    string error = 2;
+}
+
 message AlkaneInventoryRequest {
+  AlkaneId id = 1;
+}
+
+message AlkaneIdToOutpointRequest {
   AlkaneId id = 1;
 }
 
@@ -117,8 +126,13 @@ message AlkaneInventoryResponse {
   repeated AlkaneTransfer alkanes = 1;
 }
 
-message AlkaneIdToOutpointRequest {
+message AlkaneStorageRequest {
   AlkaneId id = 1;
+  string path = 2;
+}
+
+message AlkaneStorageResponse {
+  bytes value = 1;
 }
 
 message AlkaneIdToOutpointResponse {
@@ -140,13 +154,19 @@ message TraceBlockRequest {
   uint64 block = 1;
 }
 
+message TraceBlockResponse {
+  repeated Trace traces = 1;
+}
+
+message BytecodeRequest {
+  AlkaneId id = 1;
+}
+
 message BlockRequest {
   uint32 height = 1;
 }
+
 message BlockResponse {
   bytes block = 1;
   uint32 height = 2;
-}
-message TraceBlockResponse {
-  repeated Trace traces = 1;
 }

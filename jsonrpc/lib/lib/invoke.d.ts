@@ -111,3 +111,10 @@ export declare function decodeSimulateResponse(response: string): DecodedSimulat
 export declare function outpointResponseToObject(v: any[]): any;
 export declare function decodeOutpointResponse(result: any): any;
 export declare function decodeMetaResponse(response: string): any;
+export declare function encodeAlkaneInventoryRequest(block: bigint, tx: bigint): string;
+export declare function decodeAlkaneInventoryResponse(hex: string): AlkaneTransfer[];
+export declare function encodeAlkaneStorageRequest({ id, path, }: {
+    id: AlkaneId;
+    path: string;
+}): string;
+export declare function decodeAlkaneStorageResponse(hex: string): string;

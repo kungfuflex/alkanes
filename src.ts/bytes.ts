@@ -86,15 +86,15 @@ export function leftPad16(v: string): string {
   return "0".repeat(32 - v.length) + v;
 }
 export function leftPad8(v: string): string {
-//  if (v.length > 16) throw Error("varint in encoding cannot exceed 15 bytes");
+  //  if (v.length > 16) throw Error("varint in encoding cannot exceed 15 bytes");
   return "0".repeat(16 - v.length) + v;
 }
 
 export function toUint128(v: bigint): any {
   let hex = leftPad16(v.toString(16));
   return new alkanes_protobuf.uint128({
-    hi: BigInt("0x" + hex.substr(0, 16)).toString(10),
-    lo: BigInt("0x" + hex.substr(16, 32)).toString(10),
+    hi: BigInt("0x" + hex.substr(0, 16)).toString(10) as any,
+    lo: BigInt("0x" + hex.substr(16, 32)).toString(10) as any,
   });
 }
 
@@ -109,10 +109,10 @@ export function toHexString(v: any): string {
 export function u128ToBuffer(v: { hi: any; lo: any }): bigint {
   return BigInt(
     "0x" +
-      Buffer.from(
-        leftPad8(toHexString(v.hi)) + leftPad8(toHexString(v.lo)),
-        "hex",
-      ).toString("hex"),
+    Buffer.from(
+      leftPad8(toHexString(v.hi)) + leftPad8(toHexString(v.lo)),
+      "hex",
+    ).toString("hex"),
   );
 }
 
@@ -128,7 +128,7 @@ export function encodeVarInt(value: bigint): Buffer {
 }
 
 export function encipher(values: bigint[]): Buffer {
-  return Buffer.concat(values.map((v) => encodeVarInt(v)));
+  return Buffer.concat(values.map((v) => encodeVarInt(v))) as any;
 }
 
 export const toBuffer = (v: number | bigint) => {
@@ -190,16 +190,26 @@ export function pack(v: bigint[]): Buffer {
         leftPad15(
           Buffer.from(
             Array.from(
-              Buffer.from(leftPadByte(segment.toString(16)), "hex"),
-            ).reverse(),
-          ).toString("hex"),
+              Buffer.from(leftPadByte(segment.toString(16)), "hex")
+            ).reverse()
+          ).toString("hex")
         ),
-        "hex",
+        "hex"
       );
-    }),
-  );
+    })
+  ) as any;
 }
 
 export function decipherPacked(v: bigint[]): bigint[] {
-  return decipher(Buffer.concat(v.map((v) => Buffer.from(Array.from(Buffer.from(leftPadByte(v.toString(16)), 'hex')).reverse()))));
+  return decipher(
+    Buffer.concat(
+      v.map((v) =>
+        Buffer.from(
+          Array.from(
+            Buffer.from(leftPadByte(v.toString(16)), "hex")
+          ).reverse()
+        )
+      )
+    ) as any
+  );
 }

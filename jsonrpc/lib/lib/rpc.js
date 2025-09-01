@@ -226,6 +226,24 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
             protostones: [protostone],
         }).encodedRunestone;
     }
+    async getinventory({ block, tx }, blockTag = "latest") {
+        const payload = invoke.encodeAlkaneInventoryRequest(block, tx);
+        const response = await this._call({
+            method: "getinventory",
+            input: payload,
+        }, blockTag);
+        const decodedResponse = invoke.decodeAlkaneInventoryResponse(response);
+        return decodedResponse;
+    }
+    async getstorageat({ id, path }, blockTag = "latest") {
+        const payload = invoke.encodeAlkaneStorageRequest({ id, path });
+        const response = await this._call({
+            method: "getstorageat",
+            input: payload,
+        }, blockTag);
+        const decodedResponse = invoke.decodeAlkaneStorageResponse(response);
+        return decodedResponse;
+    }
 }
 exports.AlkanesRpc = AlkanesRpc;
 //# sourceMappingURL=rpc.js.map

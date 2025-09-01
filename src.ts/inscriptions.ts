@@ -20,7 +20,7 @@ export const constructRevealTxInput = (
 
   const revealPayment = btc.p2tr(
     undefined, // internalPubKey
-    ordinals.p2tr_ord_reveal(pubKey, [inscription]), // TaprootScriptTree
+    ordinals.p2tr_ord_reveal(pubKey, [inscription]) as any, // TaprootScriptTree
     undefined, // mainnet or testnet
     false, // allowUnknownOutputs, safety feature
     CUSTOM_SCRIPTS // how to handle custom scripts

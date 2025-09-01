@@ -6,14 +6,15 @@
         "noUnusedParameters": false,
         "noUnusedLocals": false,
         "moduleResolution": "node",
-	"resolveJsonModule": true,
+        "resolveJsonModule": true,
         "target": "es2020",
         "noImplicitAny": false,
         "esModuleInterop": true,
         "sourceMap": true,
         "outDir": "./lib",
-	"strictNullChecks": false,
+        "strictNullChecks": false,
         "declaration": true,
+        "skipLibCheck": true,
         "types": [
             "node"
         ]

@@ -30,7 +30,11 @@ exports.BaseRpc = void 0;
 const wallet = __importStar(require("./wallet"));
 const url_1 = __importDefault(require("url"));
 const outpoint_1 = require("./outpoint");
-const addHexPrefix = (s) => s.substr(0, 2) === '0x' ? s : '0x' + s;
+const addHexPrefix = (s) => {
+    if (s === undefined)
+        return s;
+    return s.substr(0, 2) === '0x' ? s : '0x' + s;
+};
 let id = 0;
 class BaseRpc {
     constructor({ baseUrl, memshrewUrl, headers, blockTag }) {

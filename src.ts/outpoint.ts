@@ -95,11 +95,11 @@ export function decodeOutpointViewBase(op: any): OutPoint {
     },
     output: op.output
       ? {
-          value: op.output.value,
-          script: (Buffer as any)
-            .from(op.output.script)
-            .toString("hex") as string,
-        }
+        value: op.output.value,
+        script: (Buffer as any)
+          .from(op.output.script)
+          .toString("hex") as string,
+      }
       : { value: "", script: "" },
     height: op.height,
     txindex: op.txindex,
@@ -126,7 +126,7 @@ export function decodeRunesResponse(hex: string): {
   if (!hex || hex === "0x") {
     return { runes: [] };
   }
-  const buffer = Buffer.from(stripHexPrefix(hex), "hex");
+  const buffer = new Uint8Array(Buffer.from(stripHexPrefix(hex), "hex"));
   if (buffer.length === 0) {
     return { runes: [] };
   }
@@ -187,7 +187,7 @@ export function decodeAlkanesIdToOutpointResponse(hex: string) {
   if (!hex || hex === "0x") {
     return { outpoint: {} };
   }
-  const buffer = Buffer.from(stripHexPrefix(hex), "hex");
+  const buffer = new Uint8Array(Buffer.from(stripHexPrefix(hex), "hex"));
   if (buffer.length === 0) {
     return { outpoint: {} };
   }

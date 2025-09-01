@@ -26,7 +26,7 @@ import { ProtoruneRuneId } from "./protorune/protoruneruneid";
 
 import { Psbt } from "bitcoinjs-lib";
 import { ProtoStone } from "./protorune/protostone";
-import { toUint128, toBuffer, leftPadByte } from "./bytes";
+import { toUint128, toBuffer, leftPadByte, AlkaneId } from "./bytes";
 import { BlockTag } from "./base-rpc";
 
 const addHexPrefix = (s) => (s.substr(0, 2) === "0x" ? s : "0x" + s);
@@ -383,5 +383,36 @@ export class AlkanesRpc extends BaseRpc {
       pointer: 3,
       protostones: [protostone],
     }).encodedRunestone;
+  }
+  async getinventory(
+    { block, tx }: { block: bigint; tx: bigint },
+    blockTag: BlockTag = "latest"
+  ) {
+    const payload = invoke.encodeAlkaneInventoryRequest(block, tx);
+    const response = await this._call(
+      {
+        method: "getinventory",
+        input: payload,
+      },
+      blockTag
+    );
+    const decodedResponse = invoke.decodeAlkaneInventoryResponse(response);
+    return decodedResponse;
+  }
+
+  async getstorageat(
+    { id, path }: { id: AlkaneId; path: string },
+    blockTag: BlockTag = "latest"
+  ) {
+    const payload = invoke.encodeAlkaneStorageRequest({ id, path });
+    const response = await this._call(
+      {
+        method: "getstorageat",
+        input: payload,
+      },
+      blockTag
+    );
+    const decodedResponse = invoke.decodeAlkaneStorageResponse(response);
+    return decodedResponse;
   }
 }
