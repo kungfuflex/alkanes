@@ -251,7 +251,7 @@ export function encodeSimulateRequest({
 class ExecutionStatus {
   static SUCCESS: number = 0;
   static REVERT: number = 1;
-  constructor() {}
+  constructor() { }
 }
 
 export type ExecutionResult = {
@@ -283,8 +283,8 @@ export function decodeSimulateResponse(
     status: ExecutionStatus.SUCCESS,
     gasUsed: res.gas_used,
     execution: {
-      alkanes: res.execution.alkanes,
-      storage: res.execution.storage,
+      alkanes: res.execution.alkanes.map(toAlkaneTransfer),
+      storage: res.execution.storage.map(toStorageSlot),
       error: null,
       data: "0x" + Buffer.from(res.execution.data).toString("hex"),
     },
@@ -328,4 +328,59 @@ export function decodeMetaResponse(response: string): any {
     console.error("Failed to parse meta response as JSON:", e);
     return null;
   }
+}
+
+export function encodeAlkaneInventoryRequest(
+  block: bigint,
+  tx: bigint): string {
+  const input = {
+    id: new alkanes_protobuf.AlkaneId({
+      block: toUint128(block),
+      tx: toUint128(tx),
+    }),
+  };
+  return (
+    "0x" +
+    Buffer.from(
+      new alkanes_protobuf.AlkaneInventoryRequest(input).serializeBinary()
+    ).toString("hex")
+  );
+}
+
+export function decodeAlkaneInventoryResponse(
+  hex: string
+): AlkaneTransfer[] {
+  const res = alkanes_protobuf.AlkaneInventoryResponse.deserializeBinary(
+    Buffer.from(stripHexPrefix(hex), "hex")
+  );
+  return res.alkanes.map(toAlkaneTransfer);
+}
+
+export function encodeAlkaneStorageRequest({
+  id,
+  path,
+}: {
+  id: AlkaneId;
+  path: string;
+}): string {
+  const input = {
+    id: new alkanes_protobuf.AlkaneId({
+      block: toUint128(id.block),
+      tx: toUint128(id.tx),
+    }),
+    path,
+  };
+  return (
+    "0x" +
+    Buffer.from(
+      new alkanes_protobuf.AlkaneStorageRequest(input).serializeBinary()
+    ).toString("hex")
+  );
+}
+
+export function decodeAlkaneStorageResponse(hex: string): string {
+  const res = alkanes_protobuf.AlkaneStorageResponse.deserializeBinary(
+    Buffer.from(stripHexPrefix(hex), "hex")
+  );
+  return "0x" + Buffer.from(res.value).toString("hex");
 }
