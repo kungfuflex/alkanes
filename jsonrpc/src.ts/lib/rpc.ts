@@ -391,7 +391,7 @@ export class AlkanesRpc extends BaseRpc {
     const payload = invoke.encodeAlkaneInventoryRequest(block, tx);
     const response = await this._call(
       {
-        method: "alkane_inventory",
+        method: "alkane_balance_sheet",
         input: payload,
       },
       blockTag

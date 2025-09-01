@@ -4,7 +4,10 @@ import * as wallet from "./wallet";
 import url from "url";
 import { decodeRunesResponse, encodeBlockHeightInput, OutPoint, RuneOutput } from "./outpoint";
 
-const addHexPrefix = (s) => s.substr(0, 2) === '0x' ? s : '0x' + s;
+const addHexPrefix = (s) => {
+  if (s === undefined) return s;
+  return s.substr(0, 2) === '0x' ? s : '0x' + s;
+};
 
 let id = 0;
 
@@ -53,13 +56,13 @@ export class BaseRpc {
       method: 'POST',
       body: JSON.stringify({
         id: id++,
-	jsonrpc: '2.0',
-	method: 'metashrew_preview',
-	params: [ blockHex, method, input, "latest" ]
+        jsonrpc: '2.0',
+        method: 'metashrew_preview',
+        params: [blockHex, method, input, "latest"]
       }),
       headers: {
         'Content-Type': 'application/json',
-	'Accept': 'application/json'
+        'Accept': 'application/json'
       }
     })).json());
     return addHexPrefix(response.result);
@@ -75,13 +78,13 @@ export class BaseRpc {
       method: 'POST',
       body: JSON.stringify({
         id: id++,
-	jsonrpc: '2.0',
-	method: 'metashrew_view',
-	params: [ method, input, blockTag || this.blockTag ]
+        jsonrpc: '2.0',
+        method: 'metashrew_view',
+        params: [method, input, blockTag || this.blockTag]
       }),
       headers: Object.assign({}, {
         'Content-Type': 'application/json',
-	'Accept': 'application/json'
+        'Accept': 'application/json'
       }, this.headers)
     })).json());
     return addHexPrefix(response.result);
@@ -102,13 +105,13 @@ export class BaseRpc {
     return decoded;
   }
 
-  async runesbyheight ({height}: {height: number}, blockTag: BlockTag = "latest") {
+  async runesbyheight({ height }: { height: number }, blockTag: BlockTag = "latest") {
     const payload = encodeBlockHeightInput(height);
     const response = await this._call({
       method: 'runesbyheight',
       input: payload
     }, blockTag);
-    const decodedResponse = decodeRunesResponse( response);
+    const decodedResponse = decodeRunesResponse(response);
     return decodedResponse;
   };
 }
