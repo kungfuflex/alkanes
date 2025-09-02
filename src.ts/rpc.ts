@@ -401,7 +401,7 @@ export class AlkanesRpc extends BaseRpc {
   }
 
   async getstorageat(
-    { id, path }: { id: AlkaneId; path: string },
+    { id, path }: { id: AlkaneId; path: Uint8Array },
     blockTag: BlockTag = "latest"
   ) {
     const payload = invoke.encodeAlkaneStorageRequest({ id, path });

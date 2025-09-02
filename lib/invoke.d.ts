@@ -115,6 +115,6 @@ export declare function encodeAlkaneInventoryRequest(block: bigint, tx: bigint):
 export declare function decodeAlkaneInventoryResponse(hex: string): AlkaneTransfer[];
 export declare function encodeAlkaneStorageRequest({ id, path, }: {
     id: AlkaneId;
-    path: string;
+    path: Uint8Array;
 }): string;
 export declare function decodeAlkaneStorageResponse(hex: string): string;
