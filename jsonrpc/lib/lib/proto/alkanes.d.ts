@@ -585,20 +585,20 @@ export declare namespace alkanes {
         #private;
         constructor(data?: any[] | {
             id?: AlkaneId;
-            path?: string;
+            path?: Uint8Array;
         });
         get id(): AlkaneId;
         set id(value: AlkaneId);
         get has_id(): boolean;
-        get path(): string;
-        set path(value: string);
+        get path(): Uint8Array;
+        set path(value: Uint8Array);
         static fromObject(data: {
             id?: ReturnType<typeof AlkaneId.prototype.toObject>;
-            path?: string;
+            path?: Uint8Array;
         }): AlkaneStorageRequest;
         toObject(): {
             id?: ReturnType<typeof AlkaneId.prototype.toObject>;
-            path?: string;
+            path?: Uint8Array;
         };
         serialize(): Uint8Array;
         serialize(w: pb_1.BinaryWriter): void;

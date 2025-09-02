@@ -94,6 +94,6 @@ export declare class AlkanesRpc extends BaseRpc {
     }, blockTag?: BlockTag): Promise<import("./bytes").AlkaneTransfer[]>;
     getstorageat({ id, path }: {
         id: AlkaneId;
-        path: string;
+        path: Uint8Array;
     }, blockTag?: BlockTag): Promise<string>;
 }

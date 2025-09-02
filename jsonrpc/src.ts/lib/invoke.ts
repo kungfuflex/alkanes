@@ -361,7 +361,7 @@ export function encodeAlkaneStorageRequest({
   path,
 }: {
   id: AlkaneId;
-  path: string;
+  path: Uint8Array;
 }): string {
   const input = {
     id: new alkanes_protobuf.AlkaneId({

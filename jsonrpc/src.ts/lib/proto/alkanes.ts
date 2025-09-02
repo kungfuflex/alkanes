@@ -2143,7 +2143,7 @@ export namespace alkanes {
         #one_of_decls: number[][] = [];
         constructor(data?: any[] | {
             id?: AlkaneId;
-            path?: string;
+            path?: Uint8Array;
         }) {
             super();
             pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
@@ -2166,14 +2166,14 @@ export namespace alkanes {
             return pb_1.Message.getField(this, 1) != null;
         }
         get path() {
-            return pb_1.Message.getFieldWithDefault(this, 2, "") as string;
+            return pb_1.Message.getFieldWithDefault(this, 2, new Uint8Array(0)) as Uint8Array;
         }
-        set path(value: string) {
+        set path(value: Uint8Array) {
             pb_1.Message.setField(this, 2, value);
         }
         static fromObject(data: {
             id?: ReturnType<typeof AlkaneId.prototype.toObject>;
-            path?: string;
+            path?: Uint8Array;
         }): AlkaneStorageRequest {
             const message = new AlkaneStorageRequest({});
             if (data.id != null) {
@@ -2187,7 +2187,7 @@ export namespace alkanes {
         toObject() {
             const data: {
                 id?: ReturnType<typeof AlkaneId.prototype.toObject>;
-                path?: string;
+                path?: Uint8Array;
             } = {};
             if (this.id != null) {
                 data.id = this.id.toObject();
@@ -2204,7 +2204,7 @@ export namespace alkanes {
             if (this.has_id)
                 writer.writeMessage(1, this.id, () => this.id.serialize(writer));
             if (this.path.length)
-                writer.writeString(2, this.path);
+                writer.writeBytes(2, this.path);
             if (!w)
                 return writer.getResultBuffer();
         }
@@ -2218,7 +2218,7 @@ export namespace alkanes {
                         reader.readMessage(message.id, () => message.id = AlkaneId.deserialize(reader));
                         break;
                     case 2:
-                        message.path = reader.readString();
+                        message.path = reader.readBytes();
                         break;
                     default: reader.skipField();
                 }
