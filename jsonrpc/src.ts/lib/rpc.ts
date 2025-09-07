@@ -76,7 +76,6 @@ export class AlkanesRpc extends BaseRpc {
       },
       blockTag
     );
-    console.log(byteString);
     const decoded = protowallet.decodeWalletOutput(byteString);
     return decoded;
   }
