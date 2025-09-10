@@ -81,6 +81,10 @@ export declare function encodeTraceRequest({ txid, vout, }: {
 export declare function encodeTraceBlockRequest({ block, }: {
     block: bigint | number;
 }): string;
+export declare function encodeUnwrapsRequest({ block, }: {
+    block: bigint | number;
+}): string;
+export declare function decodeUnwrapsResponse(hex: string): any;
 export declare function decodeBlockResponse(hex: string): any;
 export declare function decodeTraceBlockResponse(hex: string): any;
 export declare function decodeTraceResponse(hex: string): any;

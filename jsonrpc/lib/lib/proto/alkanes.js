@@ -37,7 +37,7 @@ exports.alkanes = void 0;
 const pb_1 = __importStar(require("google-protobuf"));
 var alkanes;
 (function (alkanes) {
-    var _uint128_one_of_decls, _AlkaneId_one_of_decls, _AlkaneTransfer_one_of_decls, _MultiSimulateRequest_one_of_decls, _MessageContextParcel_one_of_decls, _KeyValuePair_one_of_decls, _ExtendedCallResponse_one_of_decls, _Context_one_of_decls, _TraceContext_one_of_decls, _AlkanesEnterContext_one_of_decls, _AlkanesExitContext_one_of_decls, _AlkanesCreate_one_of_decls, _AlkanesTraceEvent_one_of_decls, _AlkanesBlockEvent_one_of_decls, _AlkanesBlockTraceEvent_one_of_decls, _AlkanesTrace_one_of_decls, _SimulateResponse_one_of_decls, _MultiSimulateResponse_one_of_decls, _AlkaneInventoryRequest_one_of_decls, _AlkaneIdToOutpointRequest_one_of_decls, _AlkaneInventoryResponse_one_of_decls, _AlkaneStorageRequest_one_of_decls, _AlkaneStorageResponse_one_of_decls, _AlkaneIdToOutpointResponse_one_of_decls, _Outpoint_one_of_decls, _Trace_one_of_decls, _TraceBlockRequest_one_of_decls, _TraceBlockResponse_one_of_decls, _BytecodeRequest_one_of_decls, _BlockRequest_one_of_decls, _BlockResponse_one_of_decls;
+    var _uint128_one_of_decls, _AlkaneId_one_of_decls, _AlkaneTransfer_one_of_decls, _MultiSimulateRequest_one_of_decls, _MessageContextParcel_one_of_decls, _KeyValuePair_one_of_decls, _ExtendedCallResponse_one_of_decls, _Context_one_of_decls, _TraceContext_one_of_decls, _AlkanesEnterContext_one_of_decls, _AlkanesExitContext_one_of_decls, _AlkanesCreate_one_of_decls, _AlkanesTraceEvent_one_of_decls, _AlkanesBlockEvent_one_of_decls, _AlkanesBlockTraceEvent_one_of_decls, _AlkanesTrace_one_of_decls, _SimulateResponse_one_of_decls, _MultiSimulateResponse_one_of_decls, _AlkaneInventoryRequest_one_of_decls, _AlkaneIdToOutpointRequest_one_of_decls, _AlkaneInventoryResponse_one_of_decls, _AlkaneStorageRequest_one_of_decls, _AlkaneStorageResponse_one_of_decls, _AlkaneIdToOutpointResponse_one_of_decls, _Outpoint_one_of_decls, _Trace_one_of_decls, _TraceBlockRequest_one_of_decls, _TraceBlockResponse_one_of_decls, _BytecodeRequest_one_of_decls, _BlockRequest_one_of_decls, _BlockResponse_one_of_decls, _PendingUnwrapsRequest_one_of_decls, _Payment_one_of_decls, _PendingUnwrapsResponse_one_of_decls;
     let AlkanesTraceCallType;
     (function (AlkanesTraceCallType) {
         AlkanesTraceCallType[AlkanesTraceCallType["NONE"] = 0] = "NONE";
@@ -2676,5 +2676,231 @@ var alkanes;
     }
     _BlockResponse_one_of_decls = new WeakMap();
     alkanes.BlockResponse = BlockResponse;
+    class PendingUnwrapsRequest extends pb_1.Message {
+        constructor(data) {
+            super();
+            _PendingUnwrapsRequest_one_of_decls.set(this, []);
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], __classPrivateFieldGet(this, _PendingUnwrapsRequest_one_of_decls, "f"));
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("height" in data && data.height != undefined) {
+                    this.height = data.height;
+                }
+            }
+        }
+        get height() {
+            return pb_1.Message.getFieldWithDefault(this, 1, 0);
+        }
+        set height(value) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        static fromObject(data) {
+            const message = new PendingUnwrapsRequest({});
+            if (data.height != null) {
+                message.height = data.height;
+            }
+            return message;
+        }
+        toObject() {
+            const data = {};
+            if (this.height != null) {
+                data.height = this.height;
+            }
+            return data;
+        }
+        serialize(w) {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.height != 0)
+                writer.writeUint32(1, this.height);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes) {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new PendingUnwrapsRequest();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.height = reader.readUint32();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary() {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes) {
+            return PendingUnwrapsRequest.deserialize(bytes);
+        }
+    }
+    _PendingUnwrapsRequest_one_of_decls = new WeakMap();
+    alkanes.PendingUnwrapsRequest = PendingUnwrapsRequest;
+    class Payment extends pb_1.Message {
+        constructor(data) {
+            super();
+            _Payment_one_of_decls.set(this, []);
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], __classPrivateFieldGet(this, _Payment_one_of_decls, "f"));
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("spendable" in data && data.spendable != undefined) {
+                    this.spendable = data.spendable;
+                }
+                if ("output" in data && data.output != undefined) {
+                    this.output = data.output;
+                }
+                if ("fulfilled" in data && data.fulfilled != undefined) {
+                    this.fulfilled = data.fulfilled;
+                }
+            }
+        }
+        get spendable() {
+            return pb_1.Message.getWrapperField(this, Outpoint, 1);
+        }
+        set spendable(value) {
+            pb_1.Message.setWrapperField(this, 1, value);
+        }
+        get has_spendable() {
+            return pb_1.Message.getField(this, 1) != null;
+        }
+        get output() {
+            return pb_1.Message.getFieldWithDefault(this, 2, new Uint8Array(0));
+        }
+        set output(value) {
+            pb_1.Message.setField(this, 2, value);
+        }
+        get fulfilled() {
+            return pb_1.Message.getFieldWithDefault(this, 3, false);
+        }
+        set fulfilled(value) {
+            pb_1.Message.setField(this, 3, value);
+        }
+        static fromObject(data) {
+            const message = new Payment({});
+            if (data.spendable != null) {
+                message.spendable = Outpoint.fromObject(data.spendable);
+            }
+            if (data.output != null) {
+                message.output = data.output;
+            }
+            if (data.fulfilled != null) {
+                message.fulfilled = data.fulfilled;
+            }
+            return message;
+        }
+        toObject() {
+            const data = {};
+            if (this.spendable != null) {
+                data.spendable = this.spendable.toObject();
+            }
+            if (this.output != null) {
+                data.output = this.output;
+            }
+            if (this.fulfilled != null) {
+                data.fulfilled = this.fulfilled;
+            }
+            return data;
+        }
+        serialize(w) {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.has_spendable)
+                writer.writeMessage(1, this.spendable, () => this.spendable.serialize(writer));
+            if (this.output.length)
+                writer.writeBytes(2, this.output);
+            if (this.fulfilled != false)
+                writer.writeBool(3, this.fulfilled);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes) {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new Payment();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        reader.readMessage(message.spendable, () => message.spendable = Outpoint.deserialize(reader));
+                        break;
+                    case 2:
+                        message.output = reader.readBytes();
+                        break;
+                    case 3:
+                        message.fulfilled = reader.readBool();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary() {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes) {
+            return Payment.deserialize(bytes);
+        }
+    }
+    _Payment_one_of_decls = new WeakMap();
+    alkanes.Payment = Payment;
+    class PendingUnwrapsResponse extends pb_1.Message {
+        constructor(data) {
+            super();
+            _PendingUnwrapsResponse_one_of_decls.set(this, []);
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [1], __classPrivateFieldGet(this, _PendingUnwrapsResponse_one_of_decls, "f"));
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("payments" in data && data.payments != undefined) {
+                    this.payments = data.payments;
+                }
+            }
+        }
+        get payments() {
+            return pb_1.Message.getRepeatedWrapperField(this, Payment, 1);
+        }
+        set payments(value) {
+            pb_1.Message.setRepeatedWrapperField(this, 1, value);
+        }
+        static fromObject(data) {
+            const message = new PendingUnwrapsResponse({});
+            if (data.payments != null) {
+                message.payments = data.payments.map(item => Payment.fromObject(item));
+            }
+            return message;
+        }
+        toObject() {
+            const data = {};
+            if (this.payments != null) {
+                data.payments = this.payments.map((item) => item.toObject());
+            }
+            return data;
+        }
+        serialize(w) {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.payments.length)
+                writer.writeRepeatedMessage(1, this.payments, (item) => item.serialize(writer));
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes) {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new PendingUnwrapsResponse();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        reader.readMessage(message.payments, () => pb_1.Message.addToRepeatedWrapperField(message, 1, Payment.deserialize(reader), Payment));
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary() {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes) {
+            return PendingUnwrapsResponse.deserialize(bytes);
+        }
+    }
+    _PendingUnwrapsResponse_one_of_decls = new WeakMap();
+    alkanes.PendingUnwrapsResponse = PendingUnwrapsResponse;
 })(alkanes || (exports.alkanes = alkanes = {}));
 //# sourceMappingURL=alkanes.js.map

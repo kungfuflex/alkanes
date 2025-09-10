@@ -2936,4 +2936,254 @@ export namespace alkanes {
             return BlockResponse.deserialize(bytes);
         }
     }
+    export class PendingUnwrapsRequest extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            height?: number;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("height" in data && data.height != undefined) {
+                    this.height = data.height;
+                }
+            }
+        }
+        get height() {
+            return pb_1.Message.getFieldWithDefault(this, 1, 0) as number;
+        }
+        set height(value: number) {
+            pb_1.Message.setField(this, 1, value);
+        }
+        static fromObject(data: {
+            height?: number;
+        }): PendingUnwrapsRequest {
+            const message = new PendingUnwrapsRequest({});
+            if (data.height != null) {
+                message.height = data.height;
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                height?: number;
+            } = {};
+            if (this.height != null) {
+                data.height = this.height;
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.height != 0)
+                writer.writeUint32(1, this.height);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): PendingUnwrapsRequest {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new PendingUnwrapsRequest();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        message.height = reader.readUint32();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): PendingUnwrapsRequest {
+            return PendingUnwrapsRequest.deserialize(bytes);
+        }
+    }
+    export class Payment extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            spendable?: Outpoint;
+            output?: Uint8Array;
+            fulfilled?: boolean;
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("spendable" in data && data.spendable != undefined) {
+                    this.spendable = data.spendable;
+                }
+                if ("output" in data && data.output != undefined) {
+                    this.output = data.output;
+                }
+                if ("fulfilled" in data && data.fulfilled != undefined) {
+                    this.fulfilled = data.fulfilled;
+                }
+            }
+        }
+        get spendable() {
+            return pb_1.Message.getWrapperField(this, Outpoint, 1) as Outpoint;
+        }
+        set spendable(value: Outpoint) {
+            pb_1.Message.setWrapperField(this, 1, value);
+        }
+        get has_spendable() {
+            return pb_1.Message.getField(this, 1) != null;
+        }
+        get output() {
+            return pb_1.Message.getFieldWithDefault(this, 2, new Uint8Array(0)) as Uint8Array;
+        }
+        set output(value: Uint8Array) {
+            pb_1.Message.setField(this, 2, value);
+        }
+        get fulfilled() {
+            return pb_1.Message.getFieldWithDefault(this, 3, false) as boolean;
+        }
+        set fulfilled(value: boolean) {
+            pb_1.Message.setField(this, 3, value);
+        }
+        static fromObject(data: {
+            spendable?: ReturnType<typeof Outpoint.prototype.toObject>;
+            output?: Uint8Array;
+            fulfilled?: boolean;
+        }): Payment {
+            const message = new Payment({});
+            if (data.spendable != null) {
+                message.spendable = Outpoint.fromObject(data.spendable);
+            }
+            if (data.output != null) {
+                message.output = data.output;
+            }
+            if (data.fulfilled != null) {
+                message.fulfilled = data.fulfilled;
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                spendable?: ReturnType<typeof Outpoint.prototype.toObject>;
+                output?: Uint8Array;
+                fulfilled?: boolean;
+            } = {};
+            if (this.spendable != null) {
+                data.spendable = this.spendable.toObject();
+            }
+            if (this.output != null) {
+                data.output = this.output;
+            }
+            if (this.fulfilled != null) {
+                data.fulfilled = this.fulfilled;
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.has_spendable)
+                writer.writeMessage(1, this.spendable, () => this.spendable.serialize(writer));
+            if (this.output.length)
+                writer.writeBytes(2, this.output);
+            if (this.fulfilled != false)
+                writer.writeBool(3, this.fulfilled);
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): Payment {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new Payment();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        reader.readMessage(message.spendable, () => message.spendable = Outpoint.deserialize(reader));
+                        break;
+                    case 2:
+                        message.output = reader.readBytes();
+                        break;
+                    case 3:
+                        message.fulfilled = reader.readBool();
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): Payment {
+            return Payment.deserialize(bytes);
+        }
+    }
+    export class PendingUnwrapsResponse extends pb_1.Message {
+        #one_of_decls: number[][] = [];
+        constructor(data?: any[] | {
+            payments?: Payment[];
+        }) {
+            super();
+            pb_1.Message.initialize(this, Array.isArray(data) ? data : [], 0, -1, [1], this.#one_of_decls);
+            if (!Array.isArray(data) && typeof data == "object") {
+                if ("payments" in data && data.payments != undefined) {
+                    this.payments = data.payments;
+                }
+            }
+        }
+        get payments() {
+            return pb_1.Message.getRepeatedWrapperField(this, Payment, 1) as Payment[];
+        }
+        set payments(value: Payment[]) {
+            pb_1.Message.setRepeatedWrapperField(this, 1, value);
+        }
+        static fromObject(data: {
+            payments?: ReturnType<typeof Payment.prototype.toObject>[];
+        }): PendingUnwrapsResponse {
+            const message = new PendingUnwrapsResponse({});
+            if (data.payments != null) {
+                message.payments = data.payments.map(item => Payment.fromObject(item));
+            }
+            return message;
+        }
+        toObject() {
+            const data: {
+                payments?: ReturnType<typeof Payment.prototype.toObject>[];
+            } = {};
+            if (this.payments != null) {
+                data.payments = this.payments.map((item: Payment) => item.toObject());
+            }
+            return data;
+        }
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        serialize(w?: pb_1.BinaryWriter): Uint8Array | void {
+            const writer = w || new pb_1.BinaryWriter();
+            if (this.payments.length)
+                writer.writeRepeatedMessage(1, this.payments, (item: Payment) => item.serialize(writer));
+            if (!w)
+                return writer.getResultBuffer();
+        }
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): PendingUnwrapsResponse {
+            const reader = bytes instanceof pb_1.BinaryReader ? bytes : new pb_1.BinaryReader(bytes), message = new PendingUnwrapsResponse();
+            while (reader.nextField()) {
+                if (reader.isEndGroup())
+                    break;
+                switch (reader.getFieldNumber()) {
+                    case 1:
+                        reader.readMessage(message.payments, () => pb_1.Message.addToRepeatedWrapperField(message, 1, Payment.deserialize(reader), Payment));
+                        break;
+                    default: reader.skipField();
+                }
+            }
+            return message;
+        }
+        serializeBinary(): Uint8Array {
+            return this.serialize();
+        }
+        static deserializeBinary(bytes: Uint8Array): PendingUnwrapsResponse {
+            return PendingUnwrapsResponse.deserialize(bytes);
+        }
+    }
 }

@@ -3,11 +3,9 @@ import { stripHexPrefix } from "./utils";
 import * as bitcoinjs from "bitcoinjs-lib";
 import * as bytes from "./bytes";
 
-import { MAGIC_NUMBER } from "@magiceden-oss/runestone-lib/dist/src/constants";
-
 export function parseTransaction(v: string): any {
   const transaction = Transaction.fromBuffer(
-    Buffer.from(stripHexPrefix(v), "hex"),
+    new Uint8Array(Buffer.from(stripHexPrefix(v), "hex")),
     false,
   );
   return transaction;
@@ -96,6 +94,10 @@ export function concatField(v: bigint[]): bigint[] {
 
 export function parseProtostonesFromTransaction(v: Transaction): any {
   return parseProtostones(concatField(parseRunestoneFromTransaction(v)[0x3fff]));
+}
+
+export function parseProtostonesFromTxHex(v: string): any {
+  return parseProtostonesFromTransaction(parseTransaction(v));
 }
 
 export function tryParseProtostonesFromTransaction(v: Transaction): any {

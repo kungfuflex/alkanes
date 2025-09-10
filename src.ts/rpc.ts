@@ -414,4 +414,20 @@ export class AlkanesRpc extends BaseRpc {
     const decodedResponse = invoke.decodeAlkaneStorageResponse(response);
     return decodedResponse;
   }
+
+  async unwraps(
+    { block }: { block: number | bigint },
+    blockTag: BlockTag = "latest"
+  ): Promise<any> {
+    const buffer = invoke.encodeUnwrapsRequest({ block });
+    const byteString = await this._call(
+      {
+        method: "unwrap",
+        input: buffer,
+      },
+      blockTag
+    );
+    const decoded = invoke.decodeUnwrapsResponse(byteString);
+    return decoded;
+  }
 }

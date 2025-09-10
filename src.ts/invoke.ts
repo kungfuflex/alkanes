@@ -159,7 +159,9 @@ export function encodeTraceRequest({
   };
   return (
     "0x" +
-    Buffer.from(new protobuf.Outpoint(input).serializeBinary()).toString("hex")
+    Buffer.from(
+      new protobuf.Outpoint(input as any).serializeBinary()
+    ).toString("hex")
   );
 }
 
@@ -179,14 +181,48 @@ export function encodeTraceBlockRequest({
   );
 }
 
+export function encodeUnwrapsRequest({
+  block,
+}: {
+  block: bigint | number;
+}): string {
+  const input = {
+    height: Number(block),
+  };
+  return (
+    "0x" +
+    Buffer.from(
+      new alkanes_protobuf.PendingUnwrapsRequest(input).serializeBinary()
+    ).toString("hex")
+  );
+}
+
+export function decodeUnwrapsResponse(hex: string): any {
+  const res = alkanes_protobuf.PendingUnwrapsResponse.deserializeBinary(
+    new Uint8Array(Buffer.from(stripHexPrefix(hex), "hex"))
+  );
+  return res.payments.map((p) => ({
+    spendable: {
+      txid: Buffer.from(p.spendable.txid).toString("hex"),
+      vout: p.spendable.vout,
+    },
+    output: Buffer.from(p.output).toString("hex"),
+    fulfilled: p.fulfilled,
+  }));
+}
+
 export function decodeBlockResponse(hex: string): any {
-  return addHexPrefix(Buffer.from(alkanes_protobuf.BlockResponse.deserializeBinary(
-    Buffer.from(stripHexPrefix(hex), "hex")
-  ).block).toString('hex'));
+  return addHexPrefix(
+    Buffer.from(
+      alkanes_protobuf.BlockResponse.deserializeBinary(
+        new Uint8Array(Buffer.from(stripHexPrefix(hex), "hex"))
+      ).block
+    ).toString("hex")
+  );
 }
 export function decodeTraceBlockResponse(hex: string): any {
   return alkanes_protobuf.TraceBlockResponse.deserializeBinary(
-    Buffer.from(stripHexPrefix(hex), "hex")
+    new Uint8Array(Buffer.from(stripHexPrefix(hex), "hex"))
   ).traces.map(({ outpoint, trace }) => {
     return {
       outpoint: {
@@ -200,7 +236,7 @@ export function decodeTraceBlockResponse(hex: string): any {
 
 export function decodeTraceResponse(hex: string): any {
   const resp = alkanes_protobuf.AlkanesTrace.deserializeBinary(
-    Buffer.from(stripHexPrefix(hex), "hex")
+    new Uint8Array(Buffer.from(stripHexPrefix(hex), "hex"))
   );
   return resp.toObject().events.map((v) => toEvent(v));
 }
@@ -243,7 +279,7 @@ export function encodeSimulateRequest({
   return (
     "0x" +
     Buffer.from(
-      new alkanes_protobuf.MessageContextParcel(input).serializeBinary()
+      new alkanes_protobuf.MessageContextParcel(input as any).serializeBinary()
     ).toString("hex")
   );
 }
@@ -271,7 +307,7 @@ export function decodeSimulateResponse(
   response: string
 ): DecodedSimulateResponse {
   const res = alkanes_protobuf.SimulateResponse.deserializeBinary(
-    Buffer.from(stripHexPrefix(response), "hex")
+    new Uint8Array(Buffer.from(stripHexPrefix(response), "hex"))
   );
   if (res.error || !res.execution)
     return {
@@ -310,7 +346,7 @@ export function decodeOutpointResponse(result: any): any {
     (
       (
         protobuf.OutpointResponse.deserializeBinary(
-          Buffer.from(result.substr(2), "hex")
+          new Uint8Array(Buffer.from(result.substr(2), "hex"))
         ).toObject() || {}
       ).balances || {}
     ).entries || []
@@ -351,7 +387,7 @@ export function decodeAlkaneInventoryResponse(
   hex: string
 ): AlkaneTransfer[] {
   const res = alkanes_protobuf.AlkaneInventoryResponse.deserializeBinary(
-    Buffer.from(stripHexPrefix(hex), "hex")
+    new Uint8Array(Buffer.from(stripHexPrefix(hex), "hex"))
   );
   return res.alkanes.map(toAlkaneTransfer);
 }
@@ -380,7 +416,7 @@ export function encodeAlkaneStorageRequest({
 
 export function decodeAlkaneStorageResponse(hex: string): string {
   const res = alkanes_protobuf.AlkaneStorageResponse.deserializeBinary(
-    Buffer.from(stripHexPrefix(hex), "hex")
+    new Uint8Array(Buffer.from(stripHexPrefix(hex), "hex"))
   );
   return "0x" + Buffer.from(res.value).toString("hex");
 }

@@ -170,3 +170,18 @@ message BlockResponse {
   bytes block = 1;
   uint32 height = 2;
 }
+
+
+message PendingUnwrapsRequest {
+  uint32 height = 1;
+}
+
+message Payment {
+  Outpoint spendable = 1;
+  bytes output = 2;
+  bool fulfilled = 3;
+}
+
+message PendingUnwrapsResponse {
+  repeated Payment payments = 1;
+}

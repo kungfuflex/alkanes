@@ -8,5 +8,6 @@ export declare function parseProtostones(list: bigint[]): any;
 export declare function parseProtostone(list: bigint[]): any;
 export declare function concatField(v: bigint[]): bigint[];
 export declare function parseProtostonesFromTransaction(v: Transaction): any;
+export declare function parseProtostonesFromTxHex(v: string): any;
 export declare function tryParseProtostonesFromTransaction(v: Transaction): any;
 export declare function parseProtostonesFromBlock(v: string): any;

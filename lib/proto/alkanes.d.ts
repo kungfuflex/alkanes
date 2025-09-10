@@ -800,4 +800,72 @@ export declare namespace alkanes {
         serializeBinary(): Uint8Array;
         static deserializeBinary(bytes: Uint8Array): BlockResponse;
     }
+    class PendingUnwrapsRequest extends pb_1.Message {
+        #private;
+        constructor(data?: any[] | {
+            height?: number;
+        });
+        get height(): number;
+        set height(value: number);
+        static fromObject(data: {
+            height?: number;
+        }): PendingUnwrapsRequest;
+        toObject(): {
+            height?: number;
+        };
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): PendingUnwrapsRequest;
+        serializeBinary(): Uint8Array;
+        static deserializeBinary(bytes: Uint8Array): PendingUnwrapsRequest;
+    }
+    class Payment extends pb_1.Message {
+        #private;
+        constructor(data?: any[] | {
+            spendable?: Outpoint;
+            output?: Uint8Array;
+            fulfilled?: boolean;
+        });
+        get spendable(): Outpoint;
+        set spendable(value: Outpoint);
+        get has_spendable(): boolean;
+        get output(): Uint8Array;
+        set output(value: Uint8Array);
+        get fulfilled(): boolean;
+        set fulfilled(value: boolean);
+        static fromObject(data: {
+            spendable?: ReturnType<typeof Outpoint.prototype.toObject>;
+            output?: Uint8Array;
+            fulfilled?: boolean;
+        }): Payment;
+        toObject(): {
+            spendable?: ReturnType<typeof Outpoint.prototype.toObject>;
+            output?: Uint8Array;
+            fulfilled?: boolean;
+        };
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): Payment;
+        serializeBinary(): Uint8Array;
+        static deserializeBinary(bytes: Uint8Array): Payment;
+    }
+    class PendingUnwrapsResponse extends pb_1.Message {
+        #private;
+        constructor(data?: any[] | {
+            payments?: Payment[];
+        });
+        get payments(): Payment[];
+        set payments(value: Payment[]);
+        static fromObject(data: {
+            payments?: ReturnType<typeof Payment.prototype.toObject>[];
+        }): PendingUnwrapsResponse;
+        toObject(): {
+            payments?: ReturnType<typeof Payment.prototype.toObject>[];
+        };
+        serialize(): Uint8Array;
+        serialize(w: pb_1.BinaryWriter): void;
+        static deserialize(bytes: Uint8Array | pb_1.BinaryReader): PendingUnwrapsResponse;
+        serializeBinary(): Uint8Array;
+        static deserializeBinary(bytes: Uint8Array): PendingUnwrapsResponse;
+    }
 }
