@@ -1,5 +1,5 @@
 import { decodeRunes } from "./outpoint";
-import { protorune as protobuf } from "./proto/protorune";
+import * as protobuf from "./proto/protorune";
 import { decodeOutpointViewBase, OutPoint, RuneOutput } from "./outpoint";
 import { addHexPrefix, stripHexPrefix } from "./utils";
 import leb128 from "leb128";
@@ -39,7 +39,7 @@ export function encodeProtorunesWalletInput(
     protocol_tag: encodeProtocolTag(protocolTag),
   };
   return (
-    "0x" + Buffer.from(new ProtorunesWalletRequest(input).serializeBinary()).toString("hex")
+    "0x" + Buffer.from(ProtorunesWalletRequest.encode(input).finish()).toString("hex")
   );
 }
 
@@ -54,7 +54,7 @@ export function encodeWalletInput(
     wallet: Uint8Array.from(Buffer.from(address, "utf-8")),
   };
   return (
-    "0x" + Buffer.from(new WalletRequest(input).serializeBinary()).toString("hex")
+    "0x" + Buffer.from(WalletRequest.encode(input).finish()).toString("hex")
   );
 }
 
@@ -62,7 +62,7 @@ export function decodeTransactionResult(hex: string): {
   transaction: string;
   height: number;
 } {
-  const { transaction, height } = TransactionRecord.deserializeBinary((Uint8Array as any).from((Buffer as any).from(stripHexPrefix(hex), "hex") as Buffer) as Uint8Array);
+  const { transaction, height } = TransactionRecord.decode((Uint8Array as any).from((Buffer as any).from(stripHexPrefix(hex), "hex") as Buffer) as Uint8Array);
   return {
     transaction: addHexPrefix(Buffer.from(transaction).toString('hex')),
     height: Number(height)
@@ -73,7 +73,7 @@ export function decodeWalletOutput(hex: string): {
   outpoints: OutPoint[];
   balanceSheet: RuneOutput[];
 } {
-  const wo = WalletResponse.deserializeBinary(
+  const wo = WalletResponse.decode(
     (Uint8Array as any).from((Buffer as any).from(stripHexPrefix(hex), "hex") as Buffer) as Uint8Array);
   return {
     outpoints: wo.outpoints.map((op) => decodeOutpointViewBase(op)),
@@ -85,11 +85,11 @@ export function encodeRuntimeInput(protocolTag: bigint) {
   const input: any = {
     protocolTag: encodeProtocolTag(protocolTag),
   };
-  return "0x" + Buffer.from(new RuntimeInput(input).serializeBinary()).toString("hex");
+  return "0x" + Buffer.from(RuntimeInput.encode(input).finish()).toString("hex");
 }
 
 export function decodeRuntimeOutput(hex: string) {
-  const runtime = Runtime.deserializeBinary(
+  const runtime = Runtime.decode(
     Uint8Array.from(Buffer.from(stripHexPrefix(hex), "hex"))
   );
   const balances = decodeRunes(runtime.balances);

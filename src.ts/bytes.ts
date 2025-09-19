@@ -1,11 +1,11 @@
 import { SeekBuffer } from "./seekbuffer.js";
-import { alkanes as alkanes_protobuf } from "./proto/alkanes";
+import * as alkanes_protobuf from "./proto/alkanes";
 
 export function toProtobufAlkaneTransfer(
   v: AlkaneTransfer,
 ): alkanes_protobuf.AlkaneTransfer {
-  return new alkanes_protobuf.AlkaneTransfer({
-    id: new alkanes_protobuf.AlkaneId({
+  return alkanes_protobuf.AlkaneTransfer.create({
+    id: alkanes_protobuf.AlkaneId.create({
       block: toUint128(v.id.block),
       tx: toUint128(v.id.tx),
     }),
@@ -92,9 +92,9 @@ export function leftPad8(v: string): string {
 
 export function toUint128(v: bigint): any {
   let hex = leftPad16(v.toString(16));
-  return new alkanes_protobuf.uint128({
-    hi: BigInt("0x" + hex.substr(0, 16)).toString(10) as any,
-    lo: BigInt("0x" + hex.substr(16, 32)).toString(10) as any,
+  return alkanes_protobuf.uint128.create({
+    hi: BigInt("0x" + hex.substr(0, 16)),
+    lo: BigInt("0x" + hex.substr(16, 32)),
   });
 }
 
@@ -128,7 +128,7 @@ export function encodeVarInt(value: bigint): Buffer {
 }
 
 export function encipher(values: bigint[]): Buffer {
-  return Buffer.concat(values.map((v) => encodeVarInt(v))) as any;
+  return Buffer.concat(values.map((v) => encodeVarInt(v)));
 }
 
 export const toBuffer = (v: number | bigint) => {
@@ -197,7 +197,7 @@ export function pack(v: bigint[]): Buffer {
         "hex"
       );
     })
-  ) as any;
+  );
 }
 
 export function decipherPacked(v: bigint[]): bigint[] {
@@ -210,6 +210,6 @@ export function decipherPacked(v: bigint[]): bigint[] {
           ).reverse()
         )
       )
-    ) as any
+    )
   );
 }

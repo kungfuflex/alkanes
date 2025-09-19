@@ -12,7 +12,7 @@ import {
   encodeProtorunesByHeightInput,
 } from "./outpoint";
 import { BaseRpc } from "./base-rpc";
-import { protorune as protobuf } from "./proto/protorune";
+import * as protobuf from "./proto/protorune";
 import {
   RunestoneProtostoneUpgrade,
   encodeRunestoneProtostone,
@@ -174,11 +174,11 @@ export class AlkanesRpc extends BaseRpc {
     const buffer =
       "0x" +
       Buffer.from(
-        new protobuf.OutpointWithProtocol({
+        protobuf.OutpointWithProtocol.encode({
           protocol: toUint128(protocolTag),
-          txid: Buffer.from(txid, "hex"),
+          txid: new Uint8Array(Buffer.from(txid, "hex")),
           vout,
-        }).serializeBinary()
+        }).finish()
       ).toString("hex");
     return invoke.decodeOutpointResponse(
       await this._call(
@@ -194,10 +194,10 @@ export class AlkanesRpc extends BaseRpc {
     const buffer =
       "0x" +
       Buffer.from(
-        new protobuf.Outpoint({
-          txid: Buffer.from(txid, "hex"),
+        protobuf.Outpoint.encode({
+          txid: new Uint8Array(Buffer.from(txid, "hex")),
           vout,
-        }).serializeBinary()
+        }).finish()
       ).toString("hex");
     return invoke.decodeOutpointResponse(
       await this._call(

@@ -1,5 +1,5 @@
 import { SeekBuffer } from "./seekbuffer.js";
-import { alkanes as alkanes_protobuf } from "./proto/alkanes";
+import * as alkanes_protobuf from "./proto/alkanes";
 export declare function toProtobufAlkaneTransfer(v: AlkaneTransfer): alkanes_protobuf.AlkaneTransfer;
 /**
  * A little utility type used for nominal typing.

@@ -1,5 +1,5 @@
 import { AlkaneTransfer, AlkaneId } from "./bytes";
-import { alkanes as alkanes_protobuf } from "./proto/alkanes";
+import * as alkanes_protobuf from "./proto/alkanes";
 export declare function formatKey(v: any): string;
 export declare function toAlkaneTransfer(v: any): {
     id: {

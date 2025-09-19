@@ -1,4 +1,4 @@
-import { protorune as protobuf } from "./proto/protorune";
+import * as protobuf from "./proto/protorune";
 import { stripHexPrefix } from "./utils";
 import { toUint128, fromUint128, u128ToBuffer } from "./bytes";
 const {
@@ -9,7 +9,7 @@ const {
   ProtorunesByHeightRequest,
   RunesByHeightRequest,
 } = protobuf;
-import { alkanes as alkanes_protobuf } from "./proto/alkanes";
+import * as alkanes_protobuf from "./proto/alkanes";
 
 export type Rune = {
   id: string;
@@ -43,7 +43,7 @@ export function encodeOutpointInput(txid: string, pos: number): string {
     txid: (Buffer as any).from(txid, "hex") as Buffer,
     vout: pos,
   };
-  const str = Buffer.from(new Outpoint(input).serializeBinary()).toString(
+  const str = Buffer.from(Outpoint.encode(input).finish()).toString(
     "hex"
   );
   return "0x" + str;
@@ -110,7 +110,7 @@ export function decodeOutpointView(hex: string): OutPoint {
   const bytes = (Uint8Array as any).from(
     (Buffer as any).from(stripHexPrefix(hex), "hex") as Buffer
   ) as Uint8Array;
-  const op = OutpointResponse.deserializeBinary(bytes);
+  const op = OutpointResponse.decode(bytes);
   return decodeOutpointViewBase(op);
 }
 
@@ -130,7 +130,7 @@ export function decodeRunesResponse(hex: string): {
   if (buffer.length === 0) {
     return { runes: [] };
   }
-  const response = RunesResponse.deserializeBinary(buffer);
+  const response = RunesResponse.decode(buffer);
 
   return {
     runes: response.runes.map((rune) => ({
@@ -148,7 +148,7 @@ export function encodeBlockHeightInput(height: number): string {
     height: height,
   };
   const str = Buffer.from(
-    new RunesByHeightRequest(input).serializeBinary()
+    RunesByHeightRequest.encode(input).finish()
   ).toString("hex");
   return "0x" + str;
 }
@@ -162,7 +162,7 @@ export function encodeProtorunesByHeightInput(
     protocol_tag: toUint128(protocolTag),
   };
   const str = Buffer.from(
-    new ProtorunesByHeightRequest(input).serializeBinary()
+    ProtorunesByHeightRequest.encode(input).finish()
   ).toString("hex");
   return "0x" + str;
 }
@@ -171,14 +171,14 @@ export function encodeAlkanesIdToOutpointInput(
   block: bigint,
   tx: bigint
 ): string {
-  const alkane_id = new alkanes_protobuf.AlkaneId({
+  const alkane_id = alkanes_protobuf.AlkaneId.create({
     block: toUint128(block),
     tx: toUint128(tx),
   });
   const str = Buffer.from(
-    new alkanes_protobuf.AlkaneIdToOutpointRequest({
+    alkanes_protobuf.AlkaneIdToOutpointRequest.encode({
       id: alkane_id,
-    }).serializeBinary()
+    }).finish()
   ).toString("hex");
   return "0x" + str;
 }
@@ -192,7 +192,7 @@ export function decodeAlkanesIdToOutpointResponse(hex: string) {
     return { outpoint: {} };
   }
   const response =
-    alkanes_protobuf.AlkaneIdToOutpointResponse.deserializeBinary(buffer);
+    alkanes_protobuf.AlkaneIdToOutpointResponse.decode(buffer);
   return {
     outpoint: {
       txid: Buffer.from(response.txid).toString("hex"),

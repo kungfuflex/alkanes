@@ -24,7 +24,7 @@
     "build:jsonrpc:cp-lib": "cross-env node scripts/cp-lib",
     "build:jsonrpc:tsc": "cross-env node scripts/build-jsonrpc",
     "build:jsonrpc": "run-s build:jsonrpc:cp-lib build:jsonrpc:tsc",
-    "build:protoc": "protoc --proto_path=proto/ proto/*.proto --ts_out src.ts/proto --ts_opt ts_nocheck",
+    "build:protoc": "protoc --ts_proto_out=src.ts/proto --ts_proto_opt=forceLong=bigint,esModuleInterop=true -I proto proto/*.proto",
     "build:release": "cd build; npm run build:release",
     "lint": "prettier --print-width 100 --single-quote --check src",
     "format": "prettier --print-width 100 --single-quote --write src",
@@ -90,6 +90,7 @@
     "tiny-secp256k1": "^2.2.3",
     "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.2",
+    "ts-proto": "^2.7.7",
     "typescript": "5.5.2",
     "winston": "^3.17.0"
   },
