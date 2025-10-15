@@ -414,6 +414,29 @@ export function encodeAlkaneStorageRequest({
   );
 }
 
+export function encodeAlkaneStorageRequestString({
+  id,
+  path,
+}: {
+  id: AlkaneId;
+  path: string;
+}): string {
+  const encoder = new TextEncoder();
+  const input = {
+    id: new alkanes_protobuf.AlkaneId({
+      block: toUint128(id.block),
+      tx: toUint128(id.tx),
+    }),
+    path: encoder.encode(path),
+  };
+  return (
+    "0x" +
+    Buffer.from(
+      new alkanes_protobuf.AlkaneStorageRequest(input).serializeBinary()
+    ).toString("hex")
+  );
+}
+
 export function decodeAlkaneStorageResponse(hex: string): string {
   const res = alkanes_protobuf.AlkaneStorageResponse.deserializeBinary(
     new Uint8Array(Buffer.from(stripHexPrefix(hex), "hex"))

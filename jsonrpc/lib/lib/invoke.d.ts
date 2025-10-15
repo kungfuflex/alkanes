@@ -121,4 +121,8 @@ export declare function encodeAlkaneStorageRequest({ id, path, }: {
     id: AlkaneId;
     path: Uint8Array;
 }): string;
+export declare function encodeAlkaneStorageRequestString({ id, path, }: {
+    id: AlkaneId;
+    path: string;
+}): string;
 export declare function decodeAlkaneStorageResponse(hex: string): string;

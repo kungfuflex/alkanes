@@ -243,6 +243,15 @@ class AlkanesRpc extends base_rpc_1.BaseRpc {
         const decodedResponse = invoke.decodeAlkaneStorageResponse(response);
         return decodedResponse;
     }
+    async getstorageatstring({ id, path }, blockTag = "latest") {
+        const payload = invoke.encodeAlkaneStorageRequestString({ id, path });
+        const response = await this._call({
+            method: "getstorageat",
+            input: payload,
+        }, blockTag);
+        const decodedResponse = invoke.decodeAlkaneStorageResponse(response);
+        return decodedResponse;
+    }
     async unwraps({ block }, blockTag = "latest") {
         const buffer = invoke.encodeUnwrapsRequest({ block });
         const byteString = await this._call({

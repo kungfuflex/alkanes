@@ -415,6 +415,22 @@ export class AlkanesRpc extends BaseRpc {
     return decodedResponse;
   }
 
+  async getstorageatstring(
+    { id, path }: { id: AlkaneId; path: string },
+    blockTag: BlockTag = "latest"
+  ) {
+    const payload = invoke.encodeAlkaneStorageRequestString({ id, path });
+    const response = await this._call(
+      {
+        method: "getstorageat",
+        input: payload,
+      },
+      blockTag
+    );
+    const decodedResponse = invoke.decodeAlkaneStorageResponse(response);
+    return decodedResponse;
+  }
+
   async unwraps(
     { block }: { block: number | bigint },
     blockTag: BlockTag = "latest"
