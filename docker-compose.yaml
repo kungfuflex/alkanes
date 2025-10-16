@@ -100,6 +100,7 @@ services:
       ELECTRS_NETWORK: regtest
       ELECTRS_DAEMON_RPC_ADDR: bitcoind:18443
       ELECTRS_HTTP_ADDR: 0.0.0.0:50010
+      ELECTRS_ELECTRUM_RPC_ADDR: 0.0.0.0:50001
       ELECTRS_DB_DIR: /data/electrs
       ELECTRS_DAEMON_DIR: /data/bitcoin
     restart: unless-stopped
@@ -122,7 +123,7 @@ services:
       [
         "--readonly-metashrew-db-dir", "/data",
         "--port", "9069",
-        "--electrum-rpc-url", "esplora:50010",
+        "--electrum-rpc-url", "esplora:50001",
         "--bitcoind-rpc-url", "http://bitcoind:18443",
         "--bitcoind-rpc-user", "bitcoinrpc",
         "--bitcoind-rpc-pass", "bitcoinrpc",
