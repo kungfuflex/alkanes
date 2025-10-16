@@ -117,11 +117,11 @@ services:
       - metashrew-data:/data
       - bitcoin-data:/root/.bitcoin
     ports:
-      - "8081:8081"
+      - "9069:9069"
     command:
       [
         "--readonly-metashrew-db-dir", "/data",
-        "--port", "8081",
+        "--port", "9069",
         "--electrum-rpc-url", "esplora:50010",
         "--bitcoind-rpc-url", "http://bitcoind:18443",
         "--bitcoind-rpc-user", "bitcoinrpc",

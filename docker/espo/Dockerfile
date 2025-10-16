@@ -40,5 +40,5 @@ RUN useradd -r -s /bin/false espo \
 USER espo
 VOLUME /data
 
-EXPOSE 8081
+EXPOSE 9069
 ENTRYPOINT ["/usr/local/bin/espo"]
