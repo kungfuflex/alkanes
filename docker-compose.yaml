@@ -122,7 +122,7 @@ services:
       [
         "--readonly-metashrew-db-dir", "/data",
         "--port", "9069",
-        "--electrum-rpc-url", "http://esplora:50010",
+        "--electrum-rpc-url", "esplora:50010",
         "--bitcoind-rpc-url", "http://bitcoind:18443",
         "--bitcoind-rpc-user", "bitcoinrpc",
         "--bitcoind-rpc-pass", "bitcoinrpc",
