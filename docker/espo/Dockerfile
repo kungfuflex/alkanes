@@ -37,9 +37,9 @@ RUN useradd -r -s /bin/false espo \
     && mkdir -p /data /db /tmp_db \
     && chown -R espo:espo /data /db /tmp_db
 
-USER espo
+USER root
 VOLUME /data
 
-WORKDIR /home/espo
+WORKDIR /root
 EXPOSE 9069
 ENTRYPOINT ["/usr/local/bin/espo"]
