@@ -1,4 +1,4 @@
-FROM ruimarinho/bitcoin-core:24.0.1-alpine
+FROM bitcoin/bitcoin:30.0
 
 USER root
 RUN apk add --no-cache curl
