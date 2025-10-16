@@ -126,6 +126,8 @@ services:
         "--bitcoind-rpc-url", "http://bitcoind:18443",
         "--bitcoind-rpc-user", "bitcoinrpc",
         "--bitcoind-rpc-pass", "bitcoinrpc",
-        "--bitcoind-blocks-dir", "/root/.bitcoin/regtest/blocks"
+        "--bitcoind-blocks-dir", "/root/.bitcoin/regtest/blocks",
+        "--espo-db-path", "/db",
+        "--tmp-dbs-dir", "/tmp_db"
       ]
     restart: unless-stopped

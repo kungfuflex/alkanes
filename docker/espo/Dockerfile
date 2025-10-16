@@ -32,13 +32,14 @@ RUN apt-get update && apt-get install -y \
 # Copy binary
 COPY --from=builder /build/target/release/espo /usr/local/bin/
 
-# Create and switch to a non-root user that matches the metashrew container
-RUN useradd -r -s /bin/false metashrew \
-    && mkdir -p /data \
-    && chown metashrew:metashrew /data
+# Create non-root user and required directories
+RUN useradd -r -s /bin/false espo \
+    && mkdir -p /data /db /tmp_db \
+    && chown -R espo:espo /data /db /tmp_db
 
-USER metashrew
+USER espo
 VOLUME /data
 
+WORKDIR /home/espo
 EXPOSE 9069
 ENTRYPOINT ["/usr/local/bin/espo"]
