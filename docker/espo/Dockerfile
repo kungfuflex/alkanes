@@ -3,6 +3,9 @@ FROM rust:1.79.0 as builder
 # Install git
 RUN apt-get update && apt-get install -y git
 
+# Switch to a nightly toolchain that supports edition 2024
+RUN rustup default nightly
+
 # Clone the repository into a temporary directory
 RUN git clone https://github.com/bitapeslabs/espo.git /espo_src
 
