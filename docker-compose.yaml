@@ -115,7 +115,7 @@ services:
       - esplora
     volumes:
       - metashrew-data:/data
-      - bitcoin-data:/root/.bitcoin
+      - bitcoin-data:/data/bitcoin
     ports:
       - "9069:9069"
     command:
@@ -126,7 +126,7 @@ services:
         "--bitcoind-rpc-url", "http://bitcoind:18443",
         "--bitcoind-rpc-user", "bitcoinrpc",
         "--bitcoind-rpc-pass", "bitcoinrpc",
-        "--bitcoind-blocks-dir", "/root/.bitcoin/regtest/blocks",
+        "--bitcoind-blocks-dir", "/data/bitcoin/regtest/blocks",
         "--espo-db-path", "/db",
         "--tmp-dbs-dir", "/tmp_db"
       ]
