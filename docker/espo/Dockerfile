@@ -1,11 +1,16 @@
 FROM rust:1.79.0 as builder
 
-RUN USER=root cargo new --bin espo
-WORKDIR /espo
+# Install git
+RUN apt-get update && apt-get install -y git
 
-# Clone the repository
-RUN apt-get update && apt-get install -y git && \
-    git clone https://github.com/bitapeslabs/espo.git .
+# Clone the repository into a temporary directory
+RUN git clone https://github.com/bitapeslabs/espo.git /espo_src
+
+# Set up the working directory
+WORKDIR /espo
+RUN USER=root cargo new --bin espo
+# Copy the cloned source into the cargo project directory
+RUN cp -r /espo_src/. .
 
 # Build the binary
 RUN cargo build --release
