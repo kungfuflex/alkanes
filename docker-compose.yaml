@@ -128,6 +128,7 @@ services:
         "--bitcoind-rpc-pass", "bitcoinrpc",
         "--bitcoind-blocks-dir", "/data/bitcoin/regtest/blocks",
         "--espo-db-path", "/db",
-        "--tmp-dbs-dir", "/tmp_db"
+        "--tmp-dbs-dir", "/tmp_db",
+        "--network", "regtest"
       ]
     restart: unless-stopped
