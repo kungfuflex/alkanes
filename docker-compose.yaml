@@ -103,3 +103,29 @@ services:
       ELECTRS_DB_DIR: /data/electrs
       ELECTRS_DAEMON_DIR: /data/bitcoin
     restart: unless-stopped
+
+  espo:
+    build:
+      dockerfile: Dockerfile
+      context: ./docker/espo
+    image: espo:alkanes
+    depends_on:
+      - bitcoind
+      - metashrew
+      - esplora
+    volumes:
+      - metashrew-data:/data
+      - bitcoin-data:/root/.bitcoin
+    ports:
+      - "8081:8081"
+    command:
+      [
+        "--readonly-metashrew-db-dir", "/data",
+        "--port", "8081",
+        "--electrum-rpc-url", "esplora:50010",
+        "--bitcoind-rpc-url", "http://bitcoind:18443",
+        "--bitcoind-rpc-user", "bitcoinrpc",
+        "--bitcoind-rpc-pass", "bitcoinrpc",
+        "--bitcoind-blocks-dir", "/root/.bitcoin/regtest/blocks"
+      ]
+    restart: unless-stopped
