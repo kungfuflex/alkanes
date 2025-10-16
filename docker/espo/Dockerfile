@@ -1,39 +1,44 @@
-FROM rust:1.79.0 as builder
+# Build stage
+FROM rust:1-slim-bookworm as builder
 
-# Install git
-RUN apt-get update && apt-get install -y git
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    pkg-config \
+    libclang-dev \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Switch to a nightly toolchain that supports edition 2024
 RUN rustup default nightly
 
-# Clone the repository into a temporary directory
-RUN git clone https://github.com/bitapeslabs/espo.git /espo_src
+# Clone espo repository
+WORKDIR /build
+RUN git clone https://github.com/bitapeslabs/espo.git .
 
-# Set up the working directory
-WORKDIR /espo
-RUN USER=root cargo new --bin espo
-# Copy the cloned source into the cargo project directory
-RUN cp -r /espo_src/. .
-
-# Build the binary
+# Build release binary
 RUN cargo build --release
 
-# Final stage
-FROM debian:bullseye-slim
+# Runtime stage
+FROM debian:bookworm-slim
 
-# Copy the built binary from the builder stage
-COPY --from=builder /espo/target/release/espo /usr/local/bin/espo
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libssl3 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install any runtime dependencies
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+# Copy binary
+COPY --from=builder /build/target/release/espo /usr/local/bin/
 
-# Set up a non-root user
-RUN useradd -ms /bin/bash user
-USER user
-WORKDIR /home/user
+# Create non-root user
+RUN useradd -r -s /bin/false espo \
+    && mkdir -p /data \
+    && chown espo:espo /data
 
-# Expose the default port (adjust if needed)
+USER espo
+VOLUME /data
+
 EXPOSE 8081
-
-# Set the entrypoint
 ENTRYPOINT ["/usr/local/bin/espo"]
