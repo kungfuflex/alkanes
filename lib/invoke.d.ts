@@ -73,6 +73,11 @@ export declare function toEvent(v: any): {
             storage: any;
         };
     };
+} | {
+    event: string;
+    data: {
+        alkanes: any;
+    };
 };
 export declare function encodeTraceRequest({ txid, vout, }: {
     txid: string;
