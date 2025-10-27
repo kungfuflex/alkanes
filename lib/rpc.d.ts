@@ -100,6 +100,7 @@ export declare class AlkanesRpc extends BaseRpc {
         id: AlkaneId;
         path: string;
     }, blockTag?: BlockTag): Promise<string>;
+    sequence(blockTag?: BlockTag): Promise<string>;
     unwraps({ block }: {
         block: number | bigint;
     }, blockTag?: BlockTag): Promise<any>;

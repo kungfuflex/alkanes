@@ -431,6 +431,20 @@ export class AlkanesRpc extends BaseRpc {
     return decodedResponse;
   }
 
+  async sequence(
+    blockTag: BlockTag = "latest"
+  ) {
+    const response = await this._call(
+      {
+        method: "sequence",
+        input: [],
+      },
+      blockTag
+    );
+    console.log("response sequence: ", response);
+    return response;
+  }
+
   async unwraps(
     { block }: { block: number | bigint },
     blockTag: BlockTag = "latest"
