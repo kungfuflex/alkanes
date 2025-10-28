@@ -157,8 +157,8 @@ function compareTokenValues(list1, list2, context) {
         }
     }
 
-    // Generate summary of total amounts per token
-    if (totals1.size > 0 || totals2.size > 0) {
+    // Generate summary of total amounts per token ONLY if mismatches were found
+    if (mismatchFound && (totals1.size > 0 || totals2.size > 0)) {
         console.log(`\n=== SUMMARY for ${label} ===`);
 
         // Get all unique token IDs
@@ -181,6 +181,8 @@ function compareTokenValues(list1, list2, context) {
             console.log(`  Difference: ${diff.toFixed(8)} ${diff !== 0 ? '(MISMATCH)' : ''}`);
         }
     }
+
+    return mismatchFound;
 }
 let addresses = [
     "bc1p5lushqjk7kxpqa87ppwn0dealucyqa6t40ppdkhpqm3grcpqvw9s3wdsx7", // frbtc
@@ -247,7 +249,6 @@ async function main() {
 
     for (let i = startIndex; i < addressesToProcess.length; i++) {
         const address = addressesToProcess[i];
-        console.log("processing address ", address)
         try {
             const prod_balance = await prod_rpc.protorunesbyaddress({
                 address,
@@ -258,7 +259,10 @@ async function main() {
                 address,
                 protocolTag,
             });
-            compareTokenValues(test_balance.outpoints, prod_balance.outpoints, { address });
+            const hasMismatches = compareTokenValues(test_balance.outpoints, prod_balance.outpoints, { address });
+            if (hasMismatches) {
+                console.log(`Found mismatches for address: ${address}`);
+            }
         } catch (err) {
             console.error(`Error processing address ${address}:`, err?.message || err);
         }
