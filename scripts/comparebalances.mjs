@@ -1,32 +1,116 @@
 import { AlkanesRpc } from "../lib/rpc.js";
-import fs from 'fs';
-import { parse } from 'csv-parse';
-const rpc = new AlkanesRpc({ baseUrl: 'http://sanguine-spectral-widowmaker.sandshrew.io:8380' });
-// const rpc = new AlkanesRpc({ baseUrl: 'http://spirit-cauldron-meadhouse.sandshrew.io:8080' });
 
-const signet_rpc = new AlkanesRpc({ baseUrl: 'https://signet.sandshrew.io/v2/lasereyes' });
-const prod_rpc = new AlkanesRpc({ baseUrl: 'https://mainnet.sandshrew.io/v2/lasereyes' });
-const subfrost_rpc = new AlkanesRpc({ baseUrl: 'https://mainnet.subfrost.io/v4/subfrost' });
+// CLI argument parsing
+function parseArgs() {
+    const args = process.argv.slice(2);
+    const config = {
+        addressSource: 'hardcoded', // 'hardcoded' or 'espo'
+        alkane: '2:56801', // for espo source
+        testRpcUrl: 'http://pyromancer-violent-conflagration.sandshrew.io:8080', // default test RPC
+        prodRpcUrl: 'https://mainnet.sandshrew.io/v2/lasereyes', // default prod RPC
+        overrideProd: false
+    };
 
+    for (let i = 0; i < args.length; i++) {
+        switch (args[i]) {
+            case '--address-source':
+            case '-a':
+                config.addressSource = args[++i];
+                if (!['hardcoded', 'espo'].includes(config.addressSource)) {
+                    console.error('Address source must be "hardcoded" or "espo"');
+                    process.exit(1);
+                }
+                break;
+            case '--alkane':
+                config.alkane = args[++i];
+                break;
+            case '--test-rpc':
+            case '-t':
+                config.testRpcUrl = args[++i];
+                break;
+            case '--prod-rpc':
+            case '-p':
+                config.prodRpcUrl = args[++i];
+                config.overrideProd = true;
+                break;
+            case '--help':
+            case '-h':
+                console.log(`
+Usage: node scripts/comparebalances.mjs [options]
 
-const espoResponse = await fetch("https://api.alkanode.com/rpc", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "essentials.get_holders",
-        params: {
-            alkane: "2:56801",
-            limit: 100,
-            page: 1,
+Options:
+  -a, --address-source <source>  Address source: hardcoded or espo (default: hardcoded)
+  --alkane <alkane>              Alkane for espo source (default: 2:56801)
+  -t, --test-rpc <url>           Test RPC URL (default: http://sanguine-spectral-widowmaker.sandshrew.io:8380)
+  -p, --prod-rpc <url>           Override prod RPC URL (default: https://mainnet.sandshrew.io/v2/lasereyes)
+  -h, --help                     Show this help message
+                `);
+                process.exit(0);
+                break;
+            default:
+                console.error(`Unknown argument: ${args[i]}`);
+                console.error('Use --help for usage information');
+                process.exit(1);
+        }
+    }
+
+    return config;
+}
+
+// Initialize RPC clients
+function createRpcClients(config) {
+    const testRpc = new AlkanesRpc({ baseUrl: config.testRpcUrl });
+    const prodRpc = new AlkanesRpc({ baseUrl: config.prodRpcUrl });
+
+    return { testRpc, prodRpc };
+}
+
+// Fetch addresses from espo API
+async function fetchEspoAddresses(alkane) {
+    console.log(`Fetching addresses from Espo API for alkane: ${alkane}`);
+    const response = await fetch("https://api.alkanode.com/rpc", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
         },
-    }),
-});
+        body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: 1,
+            method: "essentials.get_holders",
+            params: {
+                alkane: alkane,
+                limit: 100,
+                page: 1,
+            },
+        }),
+    });
 
-const espoData = await espoResponse.json();
+    if (!response.ok) {
+        throw new Error(`Espo API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    if (data.error) {
+        throw new Error(`Espo API error: ${data.error.message}`);
+    }
+
+    return data.result.items.map(item => item.address);
+}
+
+// Get hardcoded addresses
+function getHardcodedAddresses() {
+    return [
+        "bc1p5lushqjk7kxpqa87ppwn0dealucyqa6t40ppdkhpqm3grcpqvw9s3wdsx7", // frbtc
+        "bc1phye26ay05egf9f8r2t842jf4q8t90n28d5f690fzltgls9xdr2fqy4jywd", // my personal
+        "bc1pqq4hqs89cvjd75f6qlgtcpkfqlp9k4a5ctwplfzdxkfj7lvywszqd6r97s", // my oyl
+        "bc1phqvgwn7wn5e4s8g0999rtgafd07jpuuy59rkdrk4s5thw9jafkasg8umr8", // ray's premine
+        "bc1plvchrgqlw6e9g5t9v9ten687rt9pw2rjwqwaf9htgzmfup8jl2pqjrsaxj", // michael crypto
+        "bc1pyxevp40ffke2ylcdvjd0aylc5wlgue04sew0wshudn2mhep4x85sv47mkt", // smolcap
+        "bc1p0syk7kvy96uxuaev746l432lwpathz65c82rpxqwudy4j2r0pe7slhthr6", // jonothan
+        "bc1p3eeh9ka8pkq27rgs3hwudywuw6erkvuvgcxejhrl2c4m0g28la2qkhyq28", // scott
+        "bc1phz30v2ry8mfnf6d8hl9eyq2n3k3hu9a0uqyrnwl7lgvdj0qpu3uqdvenyv", // bongo
+    ];
+}
 
 const bigIntReplacer = (key, value) =>
     typeof value === 'bigint' ? value.toString() : value;
@@ -125,66 +209,64 @@ function compareTokenValues(list1, list2, txid) {
         }
     }
 }
-let addresses = [
-    "bc1p5lushqjk7kxpqa87ppwn0dealucyqa6t40ppdkhpqm3grcpqvw9s3wdsx7", // frbtc
-    "bc1phye26ay05egf9f8r2t842jf4q8t90n28d5f690fzltgls9xdr2fqy4jywd", // my personal
-    "bc1pqq4hqs89cvjd75f6qlgtcpkfqlp9k4a5ctwplfzdxkfj7lvywszqd6r97s", // my oyl
-    "bc1phqvgwn7wn5e4s8g0999rtgafd07jpuuy59rkdrk4s5thw9jafkasg8umr8", // ray's premine
-    "bc1plvchrgqlw6e9g5t9v9ten687rt9pw2rjwqwaf9htgzmfup8jl2pqjrsaxj", // michael crypto
-    "bc1pyxevp40ffke2ylcdvjd0aylc5wlgue04sew0wshudn2mhep4x85sv47mkt", // smolcap
-    "bc1p0syk7kvy96uxuaev746l432lwpathz65c82rpxqwudy4j2r0pe7slhthr6", // jonothan
-    "bc1p3eeh9ka8pkq27rgs3hwudywuw6erkvuvgcxejhrl2c4m0g28la2qkhyq28", // scott
-    "bc1phz30v2ry8mfnf6d8hl9eyq2n3k3hu9a0uqyrnwl7lgvdj0qpu3uqdvenyv", // bongo
-]
 
-const readAddresses = () => new Promise((resolve, reject) => {
-    const csvAddresses = [];
-    fs.createReadStream('/Users/kevinyao/Downloads/diesel_drop_v15_export.csv')
-        .pipe(parse({ from_line: 2 })) // Skip header row
-        .on('data', (row) => {
-            csvAddresses.push(row[0]);
-        })
-        .on('end', () => {
-            resolve(csvAddresses);
-        })
-        .on('error', (error) => {
-            reject(error);
-        });
-});
+// Compare balances for a single address
+async function compareAddressBalances(address, testRpc, prodRpc) {
+    try {
+        console.log(`Processing address: ${address}`);
 
-async function main() {
-    // const addressesToProcess = addresses;
-    // const addressesToProcess = await readAddresses();
-    const addressesToProcess = espoData.result.items.map((it) => it.address);
-    const startAddress = ""; // Replace with the actual address to start from
-    let startIndex = addressesToProcess.indexOf(startAddress);
-    if (startIndex === -1) {
-        console.log("Start address not found, processing all addresses.");
-        startIndex = 0;
-    }
+        const [prodBalance, testBalance] = await Promise.all([
+            prodRpc.protorunesbyaddress({
+                address,
+                protocolTag: 1n,
+            }),
+            testRpc.protorunesbyaddress({
+                address,
+                protocolTag: 1n,
+            })
+        ]);
 
-    for (let i = startIndex; i < addressesToProcess.length; i++) {
-        const address = addressesToProcess[i];
-        console.log("processing address ", address)
-        const prod_balance = await prod_rpc.protorunesbyaddress({
-            address,
-            protocolTag: 1n,
-        });
-
-        const test_balance = await rpc.protorunesbyaddress({
-            address,
-            protocolTag: 1n,
-        });
-        compareTokenValues(test_balance.outpoints, prod_balance.outpoints)
+        compareTokenValues(testBalance.outpoints, prodBalance.outpoints, address);
+    } catch (error) {
+        console.error(`Error processing address ${address}:`, error.message);
     }
 }
 
+async function main() {
+    const config = parseArgs();
+    const { testRpc, prodRpc } = createRpcClients(config);
+
+    console.log('Configuration:');
+    console.log(`  Address source: ${config.addressSource}`);
+    if (config.addressSource === 'espo') {
+        console.log(`  Alkane: ${config.alkane}`);
+    }
+    console.log(`  Test RPC: ${config.testRpcUrl}`);
+    console.log(`  Prod RPC: ${config.prodRpcUrl}`);
+    console.log('');
+
+    // Get addresses based on source
+    let addressesToProcess;
+    if (config.addressSource === 'espo') {
+        addressesToProcess = await fetchEspoAddresses(config.alkane);
+    } else {
+        addressesToProcess = getHardcodedAddresses();
+    }
+
+    console.log(`Processing ${addressesToProcess.length} addresses...\n`);
+
+    // Process addresses sequentially to avoid overwhelming the RPCs
+    for (let i = 0; i < addressesToProcess.length; i++) {
+        const address = addressesToProcess[i];
+        await compareAddressBalances(address, testRpc, prodRpc);
+
+        // Small delay to be respectful to the RPC endpoints
+        if (i < addressesToProcess.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+    }
+
+    console.log('\nBalance comparison completed.');
+}
+
 main().catch(console.error);
-
-// const prod_balance_out = await signet_rpc.protorunesbyoutpoint({
-//     txid: "D17DDF5186ADC1EA7D70F15D6D37B25540D6A90AD3A68E568072D31C1B21AD72",
-//     vout: 3,
-//     protocolTag: 1n,
-// });
-
-// console.log('Prod protorunes by out balance:', prod_balance_out);
