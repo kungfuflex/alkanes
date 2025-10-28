@@ -34,7 +34,7 @@ if (values.help) {
     process.exit(0);
 }
 
-const defaultTestRpcUrl = 'http://pyromancer-violent-conflagration.sandshrew.io:8080';
+const defaultTestRpcUrl = 'http://pyromancer-violent-conflagration.sandshrew.io:8081';
 const testRpcUrl = values['test-rpc'] || defaultTestRpcUrl;
 const prodRpcUrl = values['prod-rpc'];
 
@@ -44,20 +44,32 @@ const prod_rpc = new AlkanesRpc({ baseUrl: prodRpcUrl });
 const bigIntReplacer = (key, value) =>
     typeof value === 'bigint' ? value.toString() : value;
 function compareTokenValues(list1, list2, context) {
-    const groupAndSort = (list) => {
+    const groupByOutpointAndToken = (list) => {
         const grouped = new Map();
+        const totals = new Map(); // For summary totals per token
+
         for (const outpoint of list) {
+            const outpointKey = `${outpoint.outpoint.txid}:${outpoint.outpoint.vout}`;
             for (const item of outpoint.runes) {
-                const id = JSON.stringify(item.rune.id, bigIntReplacer);
-                if (!grouped.has(id)) {
-                    grouped.set(id, []);
+                const tokenId = JSON.stringify(item.rune.id, bigIntReplacer);
+                const key = `${outpointKey}:${tokenId}`;
+
+                if (!grouped.has(key)) {
+                    grouped.set(key, []);
                 }
-                grouped.get(id).push(item.balance);
+                grouped.get(key).push(item.balance);
+
+                // Accumulate totals for summary
+                if (!totals.has(tokenId)) {
+                    totals.set(tokenId, { balance: 0n, rune: item.rune });
+                }
+                totals.get(tokenId).balance += BigInt(item.balance);
             }
         }
 
-        for (const id of grouped.keys()) {
-            grouped.get(id).sort((a, b) => {
+        // Sort balances within each group
+        for (const key of grouped.keys()) {
+            grouped.get(key).sort((a, b) => {
                 try {
                     const valA = BigInt(a);
                     const valB = BigInt(b);
@@ -71,31 +83,35 @@ function compareTokenValues(list1, list2, context) {
                 }
             });
         }
-        return grouped;
+
+        return { grouped, totals };
     };
 
-    const grouped1 = groupAndSort(list1);
-    const grouped2 = groupAndSort(list2);
+    const { grouped: grouped1, totals: totals1 } = groupByOutpointAndToken(list1);
+    const { grouped: grouped2, totals: totals2 } = groupByOutpointAndToken(list2);
 
     let mismatchFound = false;
     const label = context?.address || context?.txid || 'unknown';
 
-    for (const [idStr, values1] of grouped1.entries()) {
-        const id = JSON.parse(idStr);
-        if (!grouped2.has(idStr)) {
-            console.error(`Mismatch for address: ${label}. Token with id ${idStr}, ${values1} found in test indexer but not in prod.`);
+    // Check for mismatches in outpoint-token combinations
+    for (const [key, values1] of grouped1.entries()) {
+        const [outpointKey, tokenIdStr] = key.split(':', 2);
+        const tokenId = JSON.parse(tokenIdStr);
+
+        if (!grouped2.has(key)) {
+            console.error(`Mismatch for address: ${label}. Outpoint ${outpointKey}, token id ${tokenIdStr}, ${values1} found in test indexer but not in prod.`);
             mismatchFound = true;
             continue;
         }
 
-        const values2 = grouped2.get(idStr);
+        const values2 = grouped2.get(key);
         let i = 0;
         let j = 0;
         let tokenMismatchFound = false;
 
         const logMismatchHeader = () => {
             if (!tokenMismatchFound) {
-                console.error(`Mismatch for address: ${label}, token id: ${JSON.stringify(id, bigIntReplacer)}`);
+                console.error(`Mismatch for address: ${label}, outpoint ${outpointKey}, token id: ${JSON.stringify(tokenId, bigIntReplacer)}`);
                 tokenMismatchFound = true;
                 mismatchFound = true;
             }
@@ -132,10 +148,37 @@ function compareTokenValues(list1, list2, context) {
         }
     }
 
-    for (const idStr of grouped2.keys()) {
-        if (!grouped1.has(idStr)) {
-            console.error(`Mismatch for address: ${label}. Token with id ${idStr} found in prod indexer but not in test.`);
+    // Check for tokens in prod but not in test
+    for (const key of grouped2.keys()) {
+        if (!grouped1.has(key)) {
+            const [outpointKey, tokenIdStr] = key.split(':', 2);
+            console.error(`Mismatch for address: ${label}. Outpoint ${outpointKey}, token id ${tokenIdStr} found in prod indexer but not in test.`);
             mismatchFound = true;
+        }
+    }
+
+    // Generate summary of total amounts per token
+    if (totals1.size > 0 || totals2.size > 0) {
+        console.log(`\n=== SUMMARY for ${label} ===`);
+
+        // Get all unique token IDs
+        const allTokens = new Set([...totals1.keys(), ...totals2.keys()]);
+
+        for (const tokenIdStr of allTokens) {
+            const total1 = totals1.get(tokenIdStr);
+            const total2 = totals2.get(tokenIdStr);
+
+            const amount1 = total1 ? Number(total1.balance) / 1e8 : 0;
+            const amount2 = total2 ? Number(total2.balance) / 1e8 : 0;
+            const diff = amount1 - amount2;
+
+            const rune = total1?.rune || total2?.rune;
+            const tokenName = rune ? rune.spacedName || rune.name : tokenIdStr;
+
+            console.log(`Token ${tokenName} (${tokenIdStr}):`);
+            console.log(`  Test indexer: ${amount1.toFixed(8)}`);
+            console.log(`  Prod indexer: ${amount2.toFixed(8)}`);
+            console.log(`  Difference: ${diff.toFixed(8)} ${diff !== 0 ? '(MISMATCH)' : ''}`);
         }
     }
 }
