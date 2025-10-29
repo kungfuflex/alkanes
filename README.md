@@ -39,6 +39,29 @@ This will deploy a supplementary copy of the DIESEL token and call a view functi
 The program flow in integration/genesis.spec.ts is the same set of logic and library usage that could be done against a mainnet Bitcoin application on ALKANES, or any other BTC compatible deployment, within a frontend application.
 
 
+## Optional: Run mempool.space explorer
+
+You can integrate the mempool.space explorer alongside the core stack using an override compose file.
+
+1. Start the core stack:
+
+```sh
+docker-compose up -d
+```
+
+2. Start the mempool overlay (frontend, backend, MariaDB):
+
+```sh
+docker-compose -f docker-compose.yaml -f docker-compose.mempool.yaml up -d
+```
+
+3. Access the UI at http://localhost:8081
+
+Notes:
+- The mempool backend is configured for regtest and connects to the existing `bitcoind` RPC (18443) and the `esplora` Electrum RPC (50001).
+- Data is persisted in the `mempool-mysql` volume; backend cache in `mempool-cache`.
+
+
 ## Author
 
 flex
