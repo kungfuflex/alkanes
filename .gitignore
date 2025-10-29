@@ -7,3 +7,4 @@ node_modules
 memory-bank/activeContext.md
 memory-bank/progress.md
 scripts/personal
+.DS_Store
