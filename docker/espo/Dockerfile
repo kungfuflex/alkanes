@@ -15,7 +15,7 @@ RUN rustup default nightly
 
 # Clone espo repository
 WORKDIR /build
-RUN git clone https://github.com/bitapeslabs/espo.git .
+RUN git clone https://github.com/bitapeslabs/espo.git . && git checkout fc3f04a8f2ba4f36757c23a6e827efec0da38286
 
 # Build release binary
 RUN cargo build --release
