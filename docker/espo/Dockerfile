@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     libclang-dev \
     libssl-dev \
+    protobuf-compiler \
     && rm -rf /var/lib/apt/lists/*
 
 # Switch to a nightly toolchain that supports edition 2024
